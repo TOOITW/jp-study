@@ -2,7 +2,7 @@
 // Red PR: This test is expected to fail until minimal implementation exists
 
 // Import expected API: to be implemented later
-import { createTodaySession } from '../../../frontend/lib/drill/session';
+import { createTodaySession } from '../../frontend/lib/drill/session';
 
 describe('AC-1 Contract', () => {
   test('test_AC-1_contract_today_drill_returns_10_questions', () => {
