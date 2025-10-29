@@ -1,0 +1,107 @@
+openapi: 3.1.0
+info:
+  title: JP Study — Daily Drill API
+  version: 0.1.0
+paths:
+  /api/health:
+    get:
+      summary: Healthcheck
+      responses:
+        '200': { description: OK }
+  /api/drills/today:
+    get:
+      summary: Get today's drill (10 questions)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodayDrillResponse'
+  /api/drills/{sessionId}/answers:
+    post:
+      summary: Submit answers for a drill session
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswersRequest'
+      responses:
+        '200': { description: Accepted }
+  /api/sync:
+    post:
+      summary: Bidirectional sync for offline data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncRequest'
+      responses:
+        '200': { description: Synced }
+components:
+  schemas:
+    TodayDrillResponse:
+      type: object
+      properties:
+        sessionId: { type: string }
+        date: { type: string }
+        questions:
+          type: array
+          items: { $ref: '#/components/schemas/Question' }
+    Question:
+      type: object
+      required: [id, type, prompt, answerKey]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [single, fill, match] }
+        prompt: { type: string }
+        options: { type: array, items: { type: string } }
+        pairs:
+          type: array
+          items:
+            type: object
+            properties:
+              left: { type: string }
+              right: { type: string }
+        answerKey:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+            - { type: object, additionalProperties: { type: string } }
+    AnswersRequest:
+      type: object
+      properties:
+        answers:
+          type: array
+          items: { $ref: '#/components/schemas/Answer' }
+    Answer:
+      type: object
+      required: [questionId, value]
+      properties:
+        questionId: { type: string }
+        value:
+          oneOf:
+            - { type: string }
+            - { type: array, items: { type: string } }
+            - { type: object, additionalProperties: { type: string } }
+        answeredAt: { type: string }
+    SyncRequest:
+      type: object
+      properties:
+        queue:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              entityType: { type: string }
+              payload: { type: object }
+              op: { type: string, enum: [UPSERT, DELETE] }
+              createdAt: { type: string }

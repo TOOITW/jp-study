@@ -35,20 +35,14 @@ Given that feature description, do this:
       git fetch --all --prune
       ```
    
-   b. Find the highest feature number across all sources for the short-name:
-      - Remote branches: `git ls-remote --heads origin | grep -E 'refs/heads/[0-9]+-<short-name>$'`
-      - Local branches: `git branch | grep -E '^[* ]*[0-9]+-<short-name>$'`
-      - Specs directories: Check for directories matching `specs/[0-9]+-<short-name>`
+   b. 由腳本自動推算短名的最高編號（遠端分支 / 本地分支 / specs 目錄）
    
-   c. Determine the next available number:
-      - Extract all numbers from all three sources
-      - Find the highest number N
-      - Use N+1 for the new branch number
+   c. 僅若確有必要才人工指定號碼，且必須大於現有最高值（否則報錯）
    
-   d. Run the script `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` with the calculated number and short-name:
-      - Pass `--number N+1` and `--short-name "your-short-name"` along with the feature description
-      - Bash example: `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS" --json --number 5 --short-name "user-auth" "Add user authentication"`
-      - PowerShell example: `.specify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS" -Json -Number 5 -ShortName "user-auth" "Add user authentication"`
+   d. 執行建立腳本（不建議手動指定 --number）：
+      ```bash
+      .specify/scripts/bash/create-new-feature.sh --json --short-name "<your-short-name>" "<Feature Description>"
+      ```
    
    **IMPORTANT**:
    - Check all three sources (remote branches, local branches, specs directories) to find the highest number

@@ -195,10 +195,10 @@ if [ -z "$BRANCH_NUMBER" ]; then
         # Check existing branches on remotes
         BRANCH_NUMBER=$(check_existing_branches "$BRANCH_SUFFIX")
     else
-        # Fall back to local directory check
+        # Fall back to local directory check (only consider same short-name)
         HIGHEST=0
         if [ -d "$SPECS_DIR" ]; then
-            for dir in "$SPECS_DIR"/*; do
+            for dir in "$SPECS_DIR"/*-"$BRANCH_SUFFIX"; do
                 [ -d "$dir" ] || continue
                 dirname=$(basename "$dir")
                 number=$(echo "$dirname" | grep -o '^[0-9]\+' || echo "0")
@@ -207,6 +207,37 @@ if [ -z "$BRANCH_NUMBER" ]; then
             done
         fi
         BRANCH_NUMBER=$((HIGHEST + 1))
+    fi
+else
+    # 使用者有手動指定 --number，加入防呆：必須大於目前最高手動推算值，否則報錯
+    if [ "$HAS_GIT" = true ]; then
+        HIGHEST_EXISTING=$(check_existing_branches "$BRANCH_SUFFIX")
+    else
+        HIGHEST_EXISTING=0
+        if [ -d "$SPECS_DIR" ]; then
+            for dir in "$SPECS_DIR"/*-"$BRANCH_SUFFIX"; do
+                [ -d "$dir" ] || continue
+                bnum=$(basename "$dir" | sed 's/-.*//' || echo "0")
+                bnum=$((10#$bnum))
+                if [ "$bnum" -gt "$HIGHEST_EXISTING" ]; then HIGHEST_EXISTING=$bnum; fi
+            done
+        fi
+    fi
+    if [ "$BRANCH_NUMBER" -le "$HIGHEST_EXISTING" ]; then
+        echo "ERROR: --number $BRANCH_NUMBER <= existing highest $HIGHEST_EXISTING for '$BRANCH_SUFFIX'." >&2
+        echo "Hint: 移除 --number 讓腳本自動編號，或改用大於 $HIGHEST_EXISTING 的數字。" >&2
+        exit 1
+    fi
+fi
+
+# 額外護欄：若 specs/ 下存在未補零的同名短名資料夾，先要求清理避免重複
+if [ -d "$SPECS_DIR" ]; then
+    mapfile -t NON_PADDED <<<"$(find "$SPECS_DIR" -maxdepth 1 -type d -name '*-'"$BRANCH_SUFFIX" 2>/dev/null | grep -vE '/[0-9]{3}-'"$BRANCH_SUFFIX"'$' || true)"
+    if [ "${#NON_PADDED[@]}" -gt 0 ]; then
+        echo "ERROR: Found non-zero-padded spec directories for '$BRANCH_SUFFIX':" >&2
+        printf ' - %s\n' "${NON_PADDED[@]}" >&2
+        echo "請先將上述資料夾改名為 3 位補零格式（例如 001-$BRANCH_SUFFIX）或合併內容後刪除，再重試。" >&2
+        exit 1
     fi
 fi
 
@@ -235,12 +266,27 @@ if [ ${#BRANCH_NAME} -gt $MAX_BRANCH_LENGTH ]; then
 fi
 
 if [ "$HAS_GIT" = true ]; then
+    # Guard: prevent creating an existing branch (local or remote)
+    if git show-ref --verify --quiet "refs/heads/$BRANCH_NAME" || \
+       git ls-remote --exit-code --heads origin "$BRANCH_NAME" >/dev/null 2>&1; then
+        echo "ERROR: Branch already exists: $BRANCH_NAME (local or remote)" >&2
+        echo "Hint: 請移除 --number 使用自動編號，或改用更大的 --number。" >&2
+        exit 1
+    fi
     git checkout -b "$BRANCH_NAME"
 else
     >&2 echo "[specify] Warning: Git repository not detected; skipped branch creation for $BRANCH_NAME"
 fi
 
 FEATURE_DIR="$SPECS_DIR/$BRANCH_NAME"
+
+# 新增：目錄已存在時中止，避免覆寫
+if [ -d "$FEATURE_DIR" ]; then
+    echo "ERROR: Feature directory already exists: $FEATURE_DIR" >&2
+    echo "Hint: 請確認是否已有相同短名與編號，或改用自動編號／較大的 --number。" >&2
+    exit 1
+fi
+
 mkdir -p "$FEATURE_DIR"
 
 TEMPLATE="$REPO_ROOT/.specify/templates/spec-template.md"

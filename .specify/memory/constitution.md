@@ -1,50 +1,52 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# JP Study App Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. 5-Minute Value (NON-NEGOTIABLE)
+每位使用者在 **5 分鐘內**必須能完成一輪有效練習並獲得回饋（正確率、錯題清單、下次複習時間）。
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. SDD × TDD as Default
+所有功能以 **Spec-Driven Development** 寫清楚 User Story 與 Acceptance Criteria；並以 **Test-Driven Development** 實作：每條 AC 至少一個自動化測試（紅→綠→重構）。測試描述需含 `AC-?` 標籤以供對表。
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Observability by Design
+預設上報事件（`drill_started`, `answer_correct/incorrect`, `session_completed`）；指標（每日完成次數、正確率、留存、平均時長）。錯誤需可追蹤與定位。任何新功能必須標示可觀測性影響。
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Offline-first & Fast
+首屏 < 2s（4G），互動回饋 < 100ms。離線可完成練習，復網自動同步。資料本地化保存近 7 日，採版本化 schema 與遷移策略。
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Opinionated UI System
+Web 採 Next.js + Tailwind + shadcn/ui；禁止自創 UI 庫與隨意色票。固定布局：上（進度/任務）、中（題目）、下（動作）。空狀態、Skeleton、錯誤提示為必備狀態。
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Development Workflow & Quality Gates
+- 規格文件：`specs/NNN-<short-name>/spec.md`（含 AC）
+  - 例：`specs/001-daily-n5-drill/spec.md`（三位數補零，短名為小寫-kebab）
+- 澄清 Q&A：`clarifications/FR-xxx.md`
+- 技術方案：`plan/FR-xxx.md`（含 Test Plan/資料模型/風險/回滾）
+- PR 模板：必勾 AC 對表、測試層級（Unit/Integration/E2E）、Lint/TypeCheck/Test、可觀測性
+- CI：最低要求 Lint + TypeCheck + Test；之後補安全/依賴審計
+- 重要架構變更需 ADR：`docs/ADR/xxxx.md`
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Naming Conventions（強制）
+- 功能分支與規格資料夾名稱必須為 3 位數補零前綴：`^[0-9]{3}-[a-z0-9-]+$`，例如：`001-daily-n5-drill`
+- 嚴禁建立非補零前綴（如 `1-...`）的 specs 目錄或分支
+- 建立新功能時不得手動指定編號（--number），除非明確大於現存最高值且在 PR 描述說明理由
+- 若發現命名違規，流程必須先合併/更名後再繼續（不得跳過）
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Single Source of Truth（SSOT）
+- 一切「功能設計文件」之單一權威在 `specs/NNN-<short-name>/`：
+  - `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/`, `tasks.md` 皆以 FEATURE_DIR 為準。
+- 禁止在 `plan/`、`docs/` 等目錄維護重複的 `FR-xxx.md` 正本。
+- 若需在 `plan/` 保留入口檔，必須是指向 FEATURE_DIR 中對應 `plan.md` 的 symlink。
+- CI/腳本應在偵測到多處不一致時中止，要求修復（刪除副本或改為 symlink）。
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Security & Data
+最小化資料收集；匯入/匯出時提示敏感資訊。資料結構版本化；提供明確 migration。
+
+## Performance Standards
+- FCP < 2s（4G）、互動回饋 < 100ms
+- 題目生成與答案判定 O(1)~O(log n)；SRS 計算不可阻塞 UI
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+此憲章優先級高於其他文件；任何偏離需在 PR 說明並獲得 Owner 批准。PR Review 必須核對：AC 測試對表、可觀測性、回滾策略。
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.1.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-29

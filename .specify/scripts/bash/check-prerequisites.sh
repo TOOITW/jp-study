@@ -112,6 +112,32 @@ if [[ ! -f "$IMPL_PLAN" ]]; then
     exit 1
 fi
 
+# SSOT guard: if a global plan/FR-xxx.md exists and is not a symlink to IMPL_PLAN (or content differs), fail
+FR_ID="$(grep -E '^fr_id:' "$IMPL_PLAN" | awk -F':' '{gsub(/ /, "", $2); print $2}')"
+if [[ -n "$FR_ID" ]]; then
+    GLOBAL_PLAN="$REPO_ROOT/plan/${FR_ID}.md"
+    if [[ -e "$GLOBAL_PLAN" ]]; then
+        if [[ -L "$GLOBAL_PLAN" ]]; then
+            # symlink exists; ensure it points to IMPL_PLAN
+            TARGET="$(readlink "$GLOBAL_PLAN")"
+            if [[ "$TARGET" != "$(realpath --relative-to="$(dirname "$GLOBAL_PLAN")" "$IMPL_PLAN" 2>/dev/null || echo "$IMPL_PLAN")" && "$TARGET" != "$IMPL_PLAN" ]]; then
+                echo "ERROR: $GLOBAL_PLAN symlink does not point to $IMPL_PLAN" >&2
+                echo "Fix: ln -sfn \"$(realpath --relative-to="$(dirname "$GLOBAL_PLAN")" "$IMPL_PLAN" 2>/dev/null || echo "$IMPL_PLAN")\" \"$GLOBAL_PLAN\"" >&2
+                exit 1
+            fi
+        else
+            if ! cmp -s "$GLOBAL_PLAN" "$IMPL_PLAN"; then
+                echo "ERROR: Global plan ($GLOBAL_PLAN) diverges from feature plan ($IMPL_PLAN)." >&2
+                echo "SSOT: Only feature plan is authoritative." >&2
+                echo "Fix one of:" >&2
+                echo "  1) rm \"$GLOBAL_PLAN\" && ln -s \"$(realpath --relative-to="$(dirname "$GLOBAL_PLAN")" "$IMPL_PLAN" 2>/dev/null || echo "$IMPL_PLAN")\" \"$GLOBAL_PLAN\"" >&2
+                echo "  2) rm \"$GLOBAL_PLAN\" (no alias)" >&2
+                exit 1
+            fi
+        fi
+    fi
+fi
+
 # Check for tasks.md if required
 if $REQUIRE_TASKS && [[ ! -f "$TASKS" ]]; then
     echo "ERROR: tasks.md not found in $FEATURE_DIR" >&2
