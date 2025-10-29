@@ -31,7 +31,7 @@ describe('AC-2 Integration', () => {
     // Assert: returns the seeded questions without network
     expect(Array.isArray(got)).toBe(true);
     expect(got).toHaveLength(seed.length);
-    const kinds = new Set(got.map(q => (q as any).type));
+  const kinds = new Set(got.map((q: any) => (q as any).type));
     expect(kinds.has('single')).toBe(true);
     expect(kinds.has('fill')).toBe(true);
     expect(kinds.has('match')).toBe(true);
