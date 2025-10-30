@@ -3,7 +3,11 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
@@ -11,14 +15,45 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@frontend/*": ["frontend/*"],
-      "@tests/*": ["tests/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@frontend/*": [
+        "frontend/*"
+      ],
+      "@tests/*": [
+        "tests/*"
+      ]
     },
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "incremental": true,
+    "isolatedModules": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
   },
-  "include": ["frontend/**/*.ts", "frontend/**/*.tsx", "tests/**/*.ts", "next.config.js"],
-  "exclude": ["node_modules", ".next"]
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "components/**/*.ts",
+    "components/**/*.tsx",
+    "frontend/**/*.ts",
+    "frontend/**/*.tsx",
+    "tests/**/*.ts",
+    "next.config.js",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
 }

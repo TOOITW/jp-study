@@ -66,3 +66,5 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
     </header>
   );
 };
+
+export default SessionHeader;

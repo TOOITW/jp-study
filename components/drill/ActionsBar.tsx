@@ -57,3 +57,5 @@ export const ActionsBar: React.FC<ActionsBarProps> = ({
     </footer>
   );
 };
+
+export default ActionsBar;
