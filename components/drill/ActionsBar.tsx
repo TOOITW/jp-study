@@ -32,7 +32,7 @@ export const ActionsBar: React.FC<ActionsBarProps> = ({
         {/* Next/Submit Button */}
         <button
           data-testid="submit-answer-button"
-          data-testid-alt="next-question-button"
+          data-testid-next="next-question-button"
           onClick={onNext}
           disabled={!isAnswered}
           className={`px-6 py-2 font-semibold rounded-lg transition-all ${
@@ -47,6 +47,7 @@ export const ActionsBar: React.FC<ActionsBarProps> = ({
         {/* Skip Button (optional) */}
         {onSkip && (
           <button
+            data-testid="skip-button"
             onClick={onSkip}
             className="px-6 py-2 font-semibold rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all"
           >

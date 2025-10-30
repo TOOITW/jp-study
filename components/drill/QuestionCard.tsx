@@ -81,7 +81,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             <button
               key={idx}
               data-testid="answer-option"
-              data-selected={selectedAnswer === option}
+              data-selected={selectedAnswer === option ? 'true' : 'false'}
               onClick={() => handleSelectOption(option)}
               disabled={disabled}
               className={`w-full text-left p-3 rounded border-2 transition-all ${
