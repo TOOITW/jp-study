@@ -5,7 +5,7 @@ import SessionHeader from '@/components/drill/SessionHeader';
 import QuestionCard from '@/components/drill/QuestionCard';
 import ActionsBar from '@/components/drill/ActionsBar';
 
-type LoadingState = 'loading' | 'content' | 'completed';
+type LoadingState = 'loading' | 'content' | 'completed' | 'error' | 'empty';
 
 export default function DailyDrillPage() {
   const [state, setState] = useState<LoadingState>('loading');
@@ -13,11 +13,25 @@ export default function DailyDrillPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [sessionSummary, setSessionSummary] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Initialize session with mock data
     const initializeSession = async () => {
       try {
+        // Check if error should be simulated (for E2E testing)
+        const url = new URL(window.location.href);
+        if (url.searchParams.get('error') === 'true') {
+          setErrorMessage('Failed to load questions. Please try again.');
+          setState('error');
+          return;
+        }
+
+        if (url.searchParams.get('empty') === 'true') {
+          setState('empty');
+          return;
+        }
+
         // Mock session data for development
         const mockSession = {
           id: 'session-001',
@@ -50,7 +64,8 @@ export default function DailyDrillPage() {
         setState('content');
       } catch (error) {
         console.error('Failed to initialize session:', error);
-        setState('loading');
+        setErrorMessage('An unexpected error occurred.');
+        setState('error');
       }
     };
 
@@ -95,6 +110,48 @@ export default function DailyDrillPage() {
           <div data-testid="loading-state" className="text-center animate-pulse">
             <div className="h-12 bg-gray-300 rounded w-48 mb-4 mx-auto"></div>
             <div className="h-6 bg-gray-300 rounded w-64 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === 'error') {
+    return (
+      <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        <div data-testid="error-state" className="flex items-center justify-center min-h-screen">
+          <div className="text-center p-8 bg-red-50 rounded-lg border-2 border-red-200 max-w-md">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">エラーが発生しました</h2>
+            <p data-testid="error-message" className="text-red-700 mb-6">
+              {errorMessage || 'Unable to load the daily drill. Please try again later.'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              再試行
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === 'empty') {
+    return (
+      <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        <div data-testid="empty-state" className="flex items-center justify-center min-h-screen">
+          <div className="text-center p-8 bg-yellow-50 rounded-lg border-2 border-yellow-200 max-w-md">
+            <h2 className="text-2xl font-bold text-yellow-700 mb-4">問題がありません</h2>
+            <p data-testid="empty-message" className="text-yellow-700 mb-6">
+              本日の日本語練習問題がまだ利用できません。後でお試しください。
+            </p>
+            <button
+              onClick={() => window.location.href = '/'}
+              className="px-6 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+            >
+              ホームに戻る
+            </button>
           </div>
         </div>
       </div>
@@ -155,17 +212,15 @@ export default function DailyDrillPage() {
   return (
     <div data-testid="drill-layout" className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div data-testid="drill-header">
-        <SessionHeader
-          currentQuestion={currentQuestionIndex + 1}
-          totalQuestions={sessionData?.questions?.length || 0}
-          correctCount={Object.entries(answers).filter(([idx, ans]) => {
-            const question = sessionData?.questions?.[parseInt(idx)];
-            return question?.answerKey === ans;
-          }).length}
-          startedAt={sessionData?.createdAt}
-        />
-      </div>
+      <SessionHeader
+        currentQuestion={currentQuestionIndex + 1}
+        totalQuestions={sessionData?.questions?.length || 0}
+        correctCount={Object.entries(answers).filter(([idx, ans]) => {
+          const question = sessionData?.questions?.[parseInt(idx)];
+          return question?.answerKey === ans;
+        }).length}
+        startedAt={sessionData?.createdAt}
+      />
 
       {/* Main content body */}
       <div data-testid="drill-body" className="flex-1 container mx-auto p-4">

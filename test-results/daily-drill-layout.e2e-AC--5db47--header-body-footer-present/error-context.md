@@ -62,27 +62,26 @@
         - button "Collapse issues badge" [ref=e79]:
           - img [ref=e80]
   - generic [ref=e82]:
-    - banner [ref=e83]:
-      - generic [ref=e84]:
-        - generic [ref=e86]:
-          - generic [ref=e87]: 問題 1 / 3
-          - generic [ref=e88]: 0:00
-        - generic [ref=e89]:
-          - generic [ref=e90]: "正確: 0"
-          - generic [ref=e91]:
+    - banner [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e87]:
+          - generic [ref=e88]: 問題 1 / 3
+          - generic [ref=e89]: 0:00
+        - generic [ref=e90]:
+          - generic [ref=e91]: "正確: 0"
+          - generic [ref=e92]:
             - text: "準確率:"
-            - generic [ref=e92]: 0%
-    - generic [ref=e93]:
-      - generic [ref=e95]:
-        - heading "「新しい」の意味は何ですか？" [level=2] [ref=e96]
-        - generic [ref=e97]:
-          - button "古い" [ref=e98]
-          - button "新しい" [ref=e99]
-          - button "美しい" [ref=e100]
-          - button "大きい" [ref=e101]
-      - contentinfo [ref=e103]:
-        - generic [ref=e104]:
-          - button "回答を選択してください" [disabled] [ref=e105]
-          - button "スキップ" [ref=e106]
-  - alert [ref=e107]
+            - generic [ref=e93]: 0%
+    - generic [ref=e96]:
+      - heading "「新しい」の意味は何ですか？" [level=2] [ref=e97]
+      - generic [ref=e98]:
+        - button "古い" [ref=e99]
+        - button "新しい" [ref=e100]
+        - button "美しい" [ref=e101]
+        - button "大きい" [ref=e102]
+    - contentinfo [ref=e104]:
+      - generic [ref=e105]:
+        - button "回答を選択してください" [disabled] [ref=e106]
+        - button "スキップ" [ref=e107]
+  - alert [ref=e108]
 ```

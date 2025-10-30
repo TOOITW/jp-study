@@ -37,7 +37,7 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span data-testid="progress-text" className="text-sm font-semibold text-gray-700">
-              問題 {currentQuestion} / {totalQuestions}
+              {currentQuestion} of {totalQuestions}
             </span>
             <span className="text-xs text-gray-500">
               {minutes}:{seconds.toString().padStart(2, '0')}
