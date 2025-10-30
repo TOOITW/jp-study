@@ -1,17 +1,24 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./*"],
       "@frontend/*": ["frontend/*"],
       "@tests/*": ["tests/*"]
-    }
+    },
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true
   },
-  "include": ["frontend/**/*.ts", "tests/**/*.ts"]
+  "include": ["frontend/**/*.ts", "frontend/**/*.tsx", "tests/**/*.ts", "next.config.js"],
+  "exclude": ["node_modules", ".next"]
 }
