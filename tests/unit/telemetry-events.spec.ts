@@ -8,6 +8,9 @@ import {
   answerEventSchema,
   sessionCompletedEventSchema,
   validateEvent,
+  createDrillStartedEvent,
+  createAnswerEvent,
+  createSessionCompletedEvent,
 } from '../../frontend/lib/telemetry/events';
 
 describe('AC-5 Unit — Telemetry event shapes', () => {
