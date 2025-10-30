@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [active]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - navigation [ref=e7]:
+            - button "previous" [disabled] [ref=e8]:
+              - img "previous" [ref=e9]
+            - generic [ref=e11]:
+              - generic [ref=e12]: 1/
+              - text: "1"
+            - button "next" [disabled] [ref=e13]:
+              - img "next" [ref=e14]
+          - img
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - img [ref=e18]
+            - generic "Latest available version is detected (16.0.1)." [ref=e20]: Next.js 16.0.1
+            - generic [ref=e21]: Turbopack
+          - img
+      - generic [ref=e22]:
+        - dialog "Runtime Error" [ref=e23]:
+          - generic [ref=e27]:
+            - generic [ref=e28]:
+              - generic [ref=e30]: Runtime Error
+              - generic [ref=e31]:
+                - button "Copy Error Info" [ref=e32] [cursor=pointer]:
+                  - img [ref=e33]
+                - link "Go to related documentation" [ref=e35] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/messages/missing-root-layout-tags
+                  - img [ref=e36]
+                - link "Learn more about enabling Node.js inspector for server code with Chrome DevTools" [ref=e38] [cursor=pointer]:
+                  - /url: https://nextjs.org/docs/app/building-your-application/configuring/debugging#server-side-code
+                  - img [ref=e39]
+            - generic [ref=e48]:
+              - text: Missing <html> and <body> tags in the root layout. Read more at
+              - link "https://nextjs.org/docs/messages/missing-root-layout-tags" [ref=e49] [cursor=pointer]:
+                - /url: https://nextjs.org/docs/messages/missing-root-layout-tags
+          - generic [ref=e51]: "1"
+          - generic [ref=e52]: "2"
+        - contentinfo [ref=e53]:
+          - region "Error feedback" [ref=e54]:
+            - paragraph [ref=e55]:
+              - link "Was this helpful?" [ref=e56] [cursor=pointer]:
+                - /url: https://nextjs.org/telemetry#error-feedback
+            - button "Mark as helpful" [ref=e57] [cursor=pointer]:
+              - img [ref=e58]
+            - button "Mark as not helpful" [ref=e61] [cursor=pointer]:
+              - img [ref=e62]
+    - generic [ref=e68] [cursor=pointer]:
+      - button "Open Next.js Dev Tools" [ref=e69]:
+        - img [ref=e70]
+      - generic [ref=e73]:
+        - button "Open issues overlay" [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: "0"
+            - generic [ref=e77]: "1"
+          - generic [ref=e78]: Issue
+        - button "Collapse issues badge" [ref=e79]:
+          - img [ref=e80]
+  - generic [ref=e82]:
+    - banner [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e87]:
+          - generic [ref=e88]: 問題 1 / 3
+          - generic [ref=e89]: 0:00
+        - generic [ref=e90]:
+          - generic [ref=e91]: "正確: 0"
+          - generic [ref=e92]:
+            - text: "準確率:"
+            - generic [ref=e93]: 0%
+    - generic [ref=e96]:
+      - heading "「新しい」の意味は何ですか？" [level=2] [ref=e97]
+      - generic [ref=e98]:
+        - button "古い" [ref=e99]
+        - button "新しい" [ref=e100]
+        - button "美しい" [ref=e101]
+        - button "大きい" [ref=e102]
+    - contentinfo [ref=e104]:
+      - generic [ref=e105]:
+        - button "回答を選択してください" [disabled] [ref=e106]
+        - button "スキップ" [ref=e107]
+  - alert [ref=e108]
+```
