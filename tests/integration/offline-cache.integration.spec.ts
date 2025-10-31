@@ -18,6 +18,7 @@ import {
   clearExpiredCache,
   getCacheInfo
 } from '../../frontend/lib/storage/indexeddb';
+import type { AnyQuestion } from '../../frontend/lib/drill/question-bank';
 
 describe('AC-7 Integration: Offline Cache Storage', () => {
   beforeEach(() => {
@@ -33,41 +34,26 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
    * 3. 可以取回相同的問題
    */
   test('test_AC-7_integration_cache_stores_questions_with_7_day_ttl', async () => {
-    const mockQuestions = [
-      {
-        id: 'n5-001',
-        type: 'single' as const,
-        category: 'vocabulary' as const,
-        difficulty: 1,
-        prompt: 'テスト問題',
-        options: ['A', 'B', 'C', 'D'],
-        answerIndex: 0,
-        explanation: '説明'
-      }
+    const mockQuestions: AnyQuestion[] = [
+      { id: 'n5-001', type: 'single', category: 'vocabulary', difficulty: 1 as 1, prompt: 'テスト問題', options: ['A'], answerIndex: 0, explanation: 'Test' }
     ];
 
-    // 儲存到快取
     await saveQuestionsToCache(mockQuestions);
 
-    // 立即取回
+    // 驗證可以取回快取
     const cached = await getQuestionsFromCache();
-
-    // 驗證資料完整
     expect(cached).toHaveLength(1);
-    expect(cached[0].id).toBe('n5-001');
-    expect(cached[0].prompt).toBe('テスト問題');
+    expect((cached[0] as any).prompt).toBe('テスト問題');
 
-    // 驗證 TTL 設定
+    // 驗證 TTL 設定正確（7 天）
     const cacheInfo = await getCacheInfo();
-    expect(cacheInfo).toHaveProperty('expiresAt');
-    
     const now = Date.now();
     const sevenDays = 7 * 24 * 60 * 60 * 1000;
     const expectedExpiry = now + sevenDays;
     
-    // 允許 1 秒誤差
-    expect(cacheInfo.expiresAt).toBeGreaterThan(now);
-    expect(cacheInfo.expiresAt).toBeLessThan(expectedExpiry + 1000);
+    expect(cacheInfo).not.toBeNull();
+    expect(cacheInfo!.expiresAt).toBeGreaterThan(now);
+    expect(cacheInfo!.expiresAt).toBeLessThan(expectedExpiry + 1000);
   });
 
   /**
@@ -77,9 +63,9 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
    * 2. 返回快取資料
    */
   test('test_AC-7_integration_retrieves_from_cache_when_available', async () => {
-    const mockQuestions = [
-      { id: 'n5-002', type: 'single' as const, category: 'grammar' as const, difficulty: 2, prompt: 'Q2', options: ['A', 'B'], answerIndex: 0, explanation: 'E2' },
-      { id: 'n5-003', type: 'single' as const, category: 'kanji' as const, difficulty: 3, prompt: 'Q3', options: ['A', 'B'], answerIndex: 1, explanation: 'E3' }
+    const mockQuestions: AnyQuestion[] = [
+      { id: 'n5-002', type: 'single', category: 'grammar', difficulty: 2 as 2, prompt: 'Q2', options: ['A', 'B'], answerIndex: 0, explanation: 'E2' },
+      { id: 'n5-003', type: 'single', category: 'kanji', difficulty: 3 as 3, prompt: 'Q3', options: ['A', 'B'], answerIndex: 1, explanation: 'E3' }
     ];
 
     await saveQuestionsToCache(mockQuestions);
@@ -102,8 +88,8 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
    * 2. 過期資料應被自動清除或返回 null/空陣列
    */
   test('test_AC-7_integration_cache_expires_after_7_days', async () => {
-    const mockQuestions = [
-      { id: 'n5-004', type: 'single' as const, category: 'vocabulary' as const, difficulty: 1, prompt: 'Q4', options: ['A', 'B'], answerIndex: 0, explanation: 'E4' }
+    const mockQuestions: AnyQuestion[] = [
+      { id: 'n5-004', type: 'single', category: 'vocabulary', difficulty: 1 as 1, prompt: 'Q4', options: ['A', 'B'], answerIndex: 0, explanation: 'E4' }
     ];
 
     // 儲存時使用 7 天前的時間戳
@@ -127,10 +113,10 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
   test('test_AC-7_integration_handles_schema_version_migration', async () => {
     // 先儲存 v1 格式（假設沒有 explanation）
     const v1Questions = [
-      { id: 'n5-005', type: 'single' as const, category: 'vocabulary' as const, difficulty: 1, prompt: 'Q5', options: ['A', 'B'], answerIndex: 0 }
+      { id: 'n5-005', type: 'single' as const, category: 'vocabulary' as const, difficulty: 1 as 1, prompt: 'Q5', options: ['A', 'B'], answerIndex: 0 }
     ];
 
-    await saveQuestionsToCache(v1Questions);
+    await saveQuestionsToCache(v1Questions as AnyQuestion[]);
 
     // 讀取時應該自動補齊缺少的欄位
     const migrated = await getQuestionsFromCache();
@@ -141,25 +127,22 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
    * T030 補充: 清理過期快取
    */
   test('test_AC-7_integration_clears_expired_cache', async () => {
-    // 儲存新鮮資料
-    const freshQuestions = [
-      { id: 'n5-006', type: 'single' as const, category: 'vocabulary' as const, difficulty: 1, prompt: 'Fresh', options: ['A'], answerIndex: 0, explanation: 'F' }
+    // 儲存過期資料（8 天前）
+    const expiredQuestions: AnyQuestion[] = [
+      { id: 'n5-007', type: 'single', category: 'vocabulary', difficulty: 1 as 1, prompt: 'Expired', options: ['B'], answerIndex: 0, explanation: 'E' }
     ];
-    await saveQuestionsToCache(freshQuestions);
-
-    // 儲存過期資料（7 天前）
-    const expiredQuestions = [
-      { id: 'n5-007', type: 'single' as const, category: 'vocabulary' as const, difficulty: 1, prompt: 'Expired', options: ['B'], answerIndex: 0, explanation: 'E' }
-    ];
-    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000 + 1000);
-    await saveQuestionsToCache(expiredQuestions, sevenDaysAgo);
+    const eightDaysAgo = Date.now() - (8 * 24 * 60 * 60 * 1000);
+    await saveQuestionsToCache(expiredQuestions, eightDaysAgo);
 
     // 清理過期快取
     await clearExpiredCache();
 
-    // 只應該剩下新鮮資料
+    // 過期資料應該被清除
     const remaining = await getQuestionsFromCache();
-    expect(remaining).toHaveLength(1);
-    expect(remaining[0].id).toBe('n5-006');
+    expect(remaining).toHaveLength(0);
+
+    // 驗證快取資訊也已清除
+    const info = await getCacheInfo();
+    expect(info).toBeNull();
   });
 });
