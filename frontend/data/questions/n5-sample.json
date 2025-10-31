@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "level": "N5",
+  "category": "mixed",
+  "lastUpdated": "2025-10-31",
+  "source": "gpt-generated-sample",
+  "totalQuestions": 3,
+  "questions": [
+    {
+      "id": "n5-vocab-001",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 1,
+      "prompt": "「おはよう」は何時に使いますか？",
+      "options": ["朝", "昼", "夜", "いつでも"],
+      "answerIndex": 0,
+      "explanation": "「おはよう」は朝の挨拶です。朝に友達に会った時に使います。",
+      "tags": ["greeting", "time", "basic"]
+    },
+    {
+      "id": "n5-grammar-001",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 2,
+      "prompt": "「私は学生___。」の空欄に入る言葉は？",
+      "options": ["です", "だ", "ます", "ある"],
+      "answerIndex": 0,
+      "explanation": "丁寧な文法では「です」を使います。「私は学生です。」が正しい文です。",
+      "tags": ["copula", "polite-form", "self-introduction"]
+    },
+    {
+      "id": "n5-kanji-001",
+      "type": "single",
+      "category": "kanji",
+      "difficulty": 1,
+      "prompt": "「新しい」を英語で何と言いますか？",
+      "options": ["new", "old", "beautiful", "big"],
+      "answerIndex": 0,
+      "explanation": "「新しい」= new（新しい/あたらしい）。対義語は「古い」（ふるい）です。",
+      "tags": ["adjective", "common", "opposites"]
+    }
+  ]
+}
