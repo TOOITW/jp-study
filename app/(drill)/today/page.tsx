@@ -89,6 +89,19 @@ export default function DailyDrillPage() {
         totalQuestions: sessionData?.questions?.length || 0,
         correctAnswers: correctCount,
         accuracy: (correctCount / (sessionData?.questions?.length || 1)) * 100,
+        wrongQuestions: Object.entries(newAnswers)
+          .map(([idx, ans]) => {
+            const index = parseInt(idx);
+            const question = sessionData.questions[index];
+            const isCorrect = question?.answerKey === ans;
+            return {
+              index,
+              question,
+              userAnswer: ans,
+              isCorrect,
+            };
+          })
+          .filter((item) => !item.isCorrect),
       };
       setSessionSummary(summary);
       setState('completed');
@@ -101,6 +114,19 @@ export default function DailyDrillPage() {
     } else {
       setState('completed');
     }
+  };
+
+  const handleRetry = () => {
+    // Reset session to start over
+    setCurrentQuestionIndex(0);
+    setAnswers({});
+    setSessionSummary(null);
+    setState('content');
+  };
+
+  const handleFinish = () => {
+    // Redirect to home page or show completion message
+    window.location.href = '/';
   };
 
   if (state === 'loading') {
@@ -178,11 +204,26 @@ export default function DailyDrillPage() {
 
             {/* Wrong questions section (placeholder for future) */}
             {sessionSummary.correctAnswers < sessionSummary.totalQuestions && (
-              <div data-testid="wrong-questions-section" className="mb-6 p-4 bg-red-50 rounded-lg">
-                <h3 className="text-lg font-semibold text-red-700 mb-2">不正解の問題</h3>
-                <ul className="text-left space-y-2">
-                  {/* Will be populated with wrong questions in future */}
-                  <li className="text-sm text-gray-600">準備中...</li>
+              <div data-testid="wrong-questions-section" className="mb-6 p-4 bg-red-50 rounded-lg max-w-2xl w-full">
+                <h3 className="text-lg font-semibold text-red-700 mb-4">不正解の問題</h3>
+                <ul className="text-left space-y-4">
+                  {sessionSummary.wrongQuestions?.map((item: any, idx: number) => (
+                    <li key={idx} className="p-3 bg-white border-l-4 border-red-500 rounded">
+                      <div className="font-semibold text-gray-800 mb-2">問題 {item.index + 1}:</div>
+                      <div className="text-gray-700 mb-2">{item.question?.prompt}</div>
+                      
+                      <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                        <div className="bg-red-100 p-2 rounded">
+                          <div className="font-semibold text-red-700">あなたの回答:</div>
+                          <div className="text-red-600">{item.userAnswer}</div>
+                        </div>
+                        <div className="bg-green-100 p-2 rounded">
+                          <div className="font-semibold text-green-700">正解:</div>
+                          <div className="text-green-600">{item.question?.answerKey}</div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -190,12 +231,14 @@ export default function DailyDrillPage() {
             <div data-testid="session-actions" className="mt-6 flex gap-4 justify-center">
               <button
                 data-testid="retry-button"
+                onClick={handleRetry}
                 className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               >
                 もう一度
               </button>
               <button
                 data-testid="finish-button"
+                onClick={handleFinish}
                 className="px-6 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
               >
                 終了
