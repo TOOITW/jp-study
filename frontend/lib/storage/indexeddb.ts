@@ -50,6 +50,59 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /**
+ * 執行讀取操作的通用函數
+ */
+async function performRead<T>(
+  operation: (store: IDBObjectStore) => IDBRequest<T>
+): Promise<T> {
+  const db = await openDB();
+  
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = operation(store);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+/**
+ * 執行寫入操作的通用函數
+ */
+async function performWrite<T>(
+  operation: (store: IDBObjectStore) => IDBRequest<T>
+): Promise<T> {
+  const db = await openDB();
+  
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = operation(store);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+  });
+}
+
+/**
+ * 檢查快取資料是否已過期
+ */
+function isExpired(cachedData: CachedData): boolean {
+  return Date.now() > cachedData.expiresAt;
+}
+
+/**
+ * 對問題進行 Schema 遷移（補齊缺少的欄位）
+ */
+function migrateQuestions(questions: AnyQuestion[]): AnyQuestion[] {
+  return questions.map(q => ({
+    ...q,
+    explanation: q.explanation ?? '' // 補齊 v1 缺少的 explanation
+  }));
+}
+
+/**
  * 儲存問題到快取
  * @param questions 要快取的問題陣列
  * @param customTimestamp 可選：自訂時間戳（用於測試）
@@ -58,25 +111,15 @@ export async function saveQuestionsToCache(
   questions: AnyQuestion[],
   customTimestamp?: number
 ): Promise<void> {
-  const db = await openDB();
   const now = customTimestamp ?? Date.now();
-  const expiresAt = now + SEVEN_DAYS_MS;
-
   const cachedData: CachedData = {
     questions,
     cachedAt: now,
-    expiresAt,
+    expiresAt: now + SEVEN_DAYS_MS,
     schemaVersion: DB_VERSION
   };
 
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction(STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(cachedData, 'cache');
-
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve();
-  });
+  await performWrite(store => store.put(cachedData, 'cache'));
 }
 
 /**
@@ -85,40 +128,23 @@ export async function saveQuestionsToCache(
  */
 export async function getQuestionsFromCache(): Promise<AnyQuestion[]> {
   try {
-    const db = await openDB();
+    const cachedData = await performRead<CachedData | undefined>(
+      store => store.get('cache')
+    );
 
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get('cache');
+    if (!cachedData) {
+      return [];
+    }
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        const cachedData = request.result as CachedData | undefined;
+    // 檢查是否過期
+    if (isExpired(cachedData)) {
+      // 過期：清除並返回空陣列
+      clearExpiredCache();
+      return [];
+    }
 
-        if (!cachedData) {
-          resolve([]);
-          return;
-        }
-
-        // 檢查是否過期
-        const now = Date.now();
-        if (now > cachedData.expiresAt) {
-          // 過期：清除並返回空陣列
-          clearExpiredCache();
-          resolve([]);
-          return;
-        }
-
-        // Schema 遷移：補齊缺少的欄位
-        const migratedQuestions = cachedData.questions.map(q => ({
-          ...q,
-          explanation: q.explanation ?? '' // 補齊 v1 缺少的 explanation
-        }));
-
-        resolve(migratedQuestions);
-      };
-    });
+    // Schema 遷移：補齊缺少的欄位
+    return migrateQuestions(cachedData.questions);
   } catch (error) {
     console.error('Failed to get questions from cache:', error);
     return [];
@@ -130,30 +156,20 @@ export async function getQuestionsFromCache(): Promise<AnyQuestion[]> {
  */
 export async function getCacheInfo(): Promise<CacheInfo | null> {
   try {
-    const db = await openDB();
+    const cachedData = await performRead<CachedData | undefined>(
+      store => store.get('cache')
+    );
 
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, 'readonly');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.get('cache');
+    if (!cachedData) {
+      return null;
+    }
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => {
-        const cachedData = request.result as CachedData | undefined;
-
-        if (!cachedData) {
-          resolve(null);
-          return;
-        }
-
-        resolve({
-          cachedAt: cachedData.cachedAt,
-          expiresAt: cachedData.expiresAt,
-          questionCount: cachedData.questions.length,
-          schemaVersion: cachedData.schemaVersion
-        });
-      };
-    });
+    return {
+      cachedAt: cachedData.cachedAt,
+      expiresAt: cachedData.expiresAt,
+      questionCount: cachedData.questions.length,
+      schemaVersion: cachedData.schemaVersion
+    };
   } catch (error) {
     console.error('Failed to get cache info:', error);
     return null;
@@ -175,21 +191,15 @@ export async function clearExpiredCache(): Promise<void> {
       getRequest.onsuccess = () => {
         const cachedData = getRequest.result as CachedData | undefined;
 
-        if (!cachedData) {
+        if (!cachedData || !isExpired(cachedData)) {
           resolve();
           return;
         }
 
-        const now = Date.now();
-        if (now > cachedData.expiresAt) {
-          // 已過期：刪除
-          const deleteRequest = store.delete('cache');
-          deleteRequest.onerror = () => reject(deleteRequest.error);
-          deleteRequest.onsuccess = () => resolve();
-        } else {
-          // 未過期：保留
-          resolve();
-        }
+        // 已過期：刪除
+        const deleteRequest = store.delete('cache');
+        deleteRequest.onerror = () => reject(deleteRequest.error);
+        deleteRequest.onsuccess = () => resolve();
       };
 
       getRequest.onerror = () => reject(getRequest.error);
@@ -204,16 +214,7 @@ export async function clearExpiredCache(): Promise<void> {
  */
 export async function clearAllCache(): Promise<void> {
   try {
-    const db = await openDB();
-
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction(STORE_NAME, 'readwrite');
-      const store = transaction.objectStore(STORE_NAME);
-      const request = store.clear();
-
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve();
-    });
+    await performWrite(store => store.clear());
   } catch (error) {
     console.error('Failed to clear all cache:', error);
   }

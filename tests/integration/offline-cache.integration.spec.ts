@@ -120,7 +120,9 @@ describe('AC-7 Integration: Offline Cache Storage', () => {
 
     // 讀取時應該自動補齊缺少的欄位
     const migrated = await getQuestionsFromCache();
+    expect(migrated).toHaveLength(1);
     expect(migrated[0]).toHaveProperty('explanation');
+    expect(migrated[0].explanation).toBe(''); // 補齊為空字串
   });
 
   /**
