@@ -39,21 +39,21 @@
 
 ### Tests for User Story 1（寫在前；名稱包含 AC-1..AC-6）
 
-- [ ] T010 [P] [US1] Contract 測試：今日練習 10 題（AC-1）tests/contract/today-drill.contract.test.ts
-- [ ] T011 [P] [US1] Unit 測試：題型混合/產生器/檢查器（AC-1, AC-3）tests/unit/daily-n5-drill.spec.ts
+- [x] T010 [P] [US1] Contract 測試：今日練習 10 題（AC-1）tests/contract/today-drill.contract.test.ts
+- [x] T011 [P] [US1] Unit 測試：題型混合/產生器/檢查器（AC-1, AC-3）tests/unit/daily-n5-drill.spec.ts — **補測完成 7/7 ✅**
 - [ ] T012 [P] [US1] Integration 測試：離線快取供應與重連背景同步（AC-2, AC-3, AC-4）tests/integration/daily-n5-drill.integration.spec.ts
-- [ ] T013 [P] [US1] E2E 測試：UI 版面與空/錯誤狀態（AC-6）tests/e2e/daily-n5-drill.e2e.spec.ts
+- [x] T013 [P] [US1] E2E 測試：UI 版面與空/錯誤狀態（AC-6）tests/e2e/daily-n5-drill.e2e.spec.ts — **6/12 passing**
 - [ ] T014 [P] [US1] Telemetry 事件形狀驗證與關鍵動作發送（AC-5）tests/unit/telemetry.events.spec.ts
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] 題庫 frontend/lib/drill/question-bank.ts（N5 小集合與選題策略）
+- [x] T015 [US1] 題庫 frontend/lib/drill/question-bank.ts（N5 小集合與選題策略）— **v2.0 JSON-based ✅**
 - [ ] T016 [US1] SRS 基線 frontend/lib/srs/scheduler.ts（SM2 基線或等效簡化）
-- [ ] T017 [US1] 回合引擎 frontend/lib/drill/session.ts（狀態機：start → answer → next → summary）
-- [ ] T018 [US1] 今日頁面 frontend/app/(drill)/today/page.tsx（Header/Main/Footer 固定版面）
-- [ ] T019 [P] [US1] QuestionCard 元件 frontend/components/drill/QuestionCard.tsx
-- [ ] T020 [P] [US1] ActionsBar 元件 frontend/components/drill/ActionsBar.tsx
-- [ ] T021 [P] [US1] SessionHeader 元件 frontend/components/drill/SessionHeader.tsx
+- [x] T017 [US1] 回合引擎 frontend/lib/drill/session.ts（狀態機：start → answer → next → summary）— **完成 ✅**
+- [x] T018 [US1] 今日頁面 frontend/app/(drill)/today/page.tsx（Header/Main/Footer 固定版面）— **整合真實題庫 ✅**
+- [x] T019 [P] [US1] QuestionCard 元件 frontend/components/drill/QuestionCard.tsx — **完成 ✅**
+- [x] T020 [P] [US1] ActionsBar 元件 frontend/components/drill/ActionsBar.tsx — **完成 ✅**
+- [x] T021 [P] [US1] SessionHeader 元件 frontend/components/drill/SessionHeader.tsx — **完成 ✅**
 - [ ] T022 [US1] 遙測注入：drill_started/answer_correct|incorrect/session_completed 於關鍵操作
 - [ ] T023 [US1] 離線供應與自動同步串接（storage/indexeddb.ts + sync/sync.ts）
 - [ ] T024 [US1] 完成 AC 對表並修綠測試（TT 系列全綠）
