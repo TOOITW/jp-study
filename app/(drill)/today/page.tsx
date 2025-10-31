@@ -5,6 +5,11 @@ import SessionHeader from '@/components/drill/SessionHeader';
 import QuestionCard from '@/components/drill/QuestionCard';
 import ActionsBar from '@/components/drill/ActionsBar';
 import { getDailyQuestions, type SingleQuestion } from '@/frontend/lib/drill/question-bank';
+import { 
+  getQuestionsFromCache, 
+  saveQuestionsToCache, 
+  getCacheInfo 
+} from '@/frontend/lib/storage/indexeddb';
 
 type LoadingState = 'loading' | 'content' | 'completed' | 'error' | 'empty';
 
@@ -17,7 +22,7 @@ export default function DailyDrillPage() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
-    // Initialize session with real question bank
+    // Initialize session with offline-first strategy
     const initializeSession = async () => {
       try {
         // Check if error should be simulated (for E2E testing)
@@ -33,15 +38,39 @@ export default function DailyDrillPage() {
           return;
         }
 
-        // Load questions from real question bank (10 questions)
-        const questions = getDailyQuestions(10);
+        // 🎯 離線優先策略：先檢查快取
+        let questions = await getQuestionsFromCache();
+        let fromCache = false;
+
+        if (questions.length > 0) {
+          // ✅ 快取命中：直接使用
+          fromCache = true;
+          console.log('✅ Loaded from cache:', questions.length, 'questions');
+          
+          // 顯示快取資訊（開發用）
+          const cacheInfo = await getCacheInfo();
+          if (cacheInfo) {
+            const expiresIn = Math.ceil((cacheInfo.expiresAt - Date.now()) / (1000 * 60 * 60 * 24));
+            console.log(`📦 Cache expires in ${expiresIn} days`);
+          }
+        } else {
+          // ❌ 快取未命中：從 question-bank 載入
+          console.log('📥 Cache miss, loading from question-bank...');
+          questions = getDailyQuestions(10);
+
+          if (questions.length > 0) {
+            // 儲存到快取
+            await saveQuestionsToCache(questions);
+            console.log('💾 Saved to cache:', questions.length, 'questions');
+          }
+        }
 
         if (questions.length === 0) {
           setState('empty');
           return;
         }
 
-        // Create session with real questions
+        // Create session with loaded questions
         const session = {
           id: `session-${Date.now()}`,
           createdAt: Date.now(),
