@@ -39,6 +39,15 @@ Web 採 Next.js + Tailwind + shadcn/ui；禁止自創 UI 庫與隨意色票。�
 - 若需在 `plan/` 保留入口檔，必須是指向 FEATURE_DIR 中對應 `plan.md` 的 symlink。
 - CI/腳本應在偵測到多處不一致時中止，要求修復（刪除副本或改為 symlink）。
 
+### Acceptance Criteria（AC）組織規範（新增）
+- **禁止**創建獨立的 `ac-*.md` 文件（如 `ac-1.md`, `ac-7.md` 等）
+- **所有 AC 定義**必須整合在 `plan.md` 的 **Section 8: Test Plan (TDD) — AC mapping**
+- **所有 AC 實作任務**必須整合在 `tasks.md` 的對應 **Phase/User Story**
+- AC 命名規則：`AC-N` 其中 N 為數字（1, 2, 3...），每條 AC 至少包含：
+  - 簡短描述（單行）
+  - 測試清單（含測試類型：unit/integration/contract/e2e）
+- 違規案例：創建 `specs/001-xxx/ac-7.md` 而非將其內容整合進 `plan.md` 和 `tasks.md`
+
 ## Security & Data
 最小化資料收集；匯入/匯出時提示敏感資訊。資料結構版本化；提供明確 migration。
 
@@ -49,4 +58,4 @@ Web 採 Next.js + Tailwind + shadcn/ui；禁止自創 UI 庫與隨意色票。�
 ## Governance
 此憲章優先級高於其他文件；任何偏離需在 PR 說明並獲得 Owner 批准。PR Review 必須核對：AC 測試對表、可觀測性、回滾策略。
 
-**Version**: 1.1.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-29
+**Version**: 1.2.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-10-31
