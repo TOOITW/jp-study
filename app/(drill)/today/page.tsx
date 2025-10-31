@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import SessionHeader from '@/components/drill/SessionHeader';
 import QuestionCard from '@/components/drill/QuestionCard';
 import ActionsBar from '@/components/drill/ActionsBar';
+import { getDailyQuestions, type SingleQuestion } from '@/frontend/lib/drill/question-bank';
 
 type LoadingState = 'loading' | 'content' | 'completed' | 'error' | 'empty';
 
@@ -16,7 +17,7 @@ export default function DailyDrillPage() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
-    // Initialize session with mock data
+    // Initialize session with real question bank
     const initializeSession = async () => {
       try {
         // Check if error should be simulated (for E2E testing)
@@ -32,35 +33,31 @@ export default function DailyDrillPage() {
           return;
         }
 
-        // Mock session data for development
-        const mockSession = {
-          id: 'session-001',
+        // Load questions from real question bank (10 questions)
+        const questions = getDailyQuestions(10);
+
+        if (questions.length === 0) {
+          setState('empty');
+          return;
+        }
+
+        // Create session with real questions
+        const session = {
+          id: `session-${Date.now()}`,
           createdAt: Date.now(),
-          questions: [
-            {
-              id: 'q1',
-              type: 'single',
-              prompt: '「新しい」の意味は何ですか？',
-              options: ['古い', '新しい', '美しい', '大きい'],
-              answerKey: '新しい',
-            },
-            {
-              id: 'q2',
-              type: 'single',
-              prompt: '「食べる」の過去形は？',
-              options: ['食べた', '食べます', '食べる', '食べよう'],
-              answerKey: '食べた',
-            },
-            {
-              id: 'q3',
-              type: 'single',
-              prompt: '「です」は何か？',
-              options: ['動詞', 'です詞', 'コピュラ', '名詞'],
-              answerKey: 'コピュラ',
-            },
-          ],
+          questions: questions.map((q: any) => ({
+            id: q.id,
+            type: q.type,
+            prompt: q.prompt,
+            options: q.options,
+            answerKey: q.options[q.answerIndex],
+            category: q.category,
+            difficulty: q.difficulty,
+            explanation: q.explanation,
+          })),
         };
-        setSessionData(mockSession);
+
+        setSessionData(session);
         setState('content');
       } catch (error) {
         console.error('Failed to initialize session:', error);

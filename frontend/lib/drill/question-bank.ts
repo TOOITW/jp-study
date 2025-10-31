@@ -1,11 +1,20 @@
-// Minimal question bank implementation for AC-1
-// Provides getDailyQuestions(count) returning a mixed set of question types
+/**
+ * Question Bank - Load real N5 questions from JSON files
+ * Supports: single choice, match, fill questions
+ * Version: 2.0 (Real question bank)
+ */
+
+import n5Batch1 from '@/frontend/data/questions/n5-batch-day-1.json';
 
 export type QuestionType = 'single' | 'match' | 'fill';
+export type QuestionCategory = 'vocabulary' | 'grammar' | 'kanji' | 'listening' | 'reading' | 'particle';
 
 export interface BaseQuestion {
   id: string;
   type: QuestionType;
+  category: QuestionCategory;
+  difficulty: 1 | 2 | 3 | 4 | 5;
+  tags?: string[];
 }
 
 export interface SingleQuestion extends BaseQuestion {
@@ -13,75 +22,150 @@ export interface SingleQuestion extends BaseQuestion {
   prompt: string;
   options: string[];
   answerIndex: number;
+  explanation?: string;
 }
 
 export interface MatchQuestion extends BaseQuestion {
   type: 'match';
+  instruction: string;
   left: string[];
   right: string[];
-  pairs: Array<[number, number]>; // index mapping left->right
+  pairs: Array<[number, number]>;
+  explanation?: string;
 }
 
 export interface FillQuestion extends BaseQuestion {
   type: 'fill';
   prompt: string;
-  blanks: number; // number of blanks
-  solutions: string[]; // acceptable answers per blank (flattened minimal)
+  blanks: number;
+  solutions: string[][];
+  caseSensitive?: boolean;
+  explanation?: string;
 }
 
 export type AnyQuestion = SingleQuestion | MatchQuestion | FillQuestion;
 
-let __qid = 0;
-const nextId = () => `q_${Date.now()}_${__qid++}`;
-
-// Simple templates to ensure we can produce all three types
-const singleTemplate = (): SingleQuestion => ({
-  id: nextId(),
-  type: 'single',
-  prompt: 'ひらがな「あ」的羅馬拼音是？',
-  options: ['a', 'i', 'u', 'e'],
-  answerIndex: 0,
-});
-
-const matchTemplate = (): MatchQuestion => ({
-  id: nextId(),
-  type: 'match',
-  left: ['犬', '猫', '鳥'],
-  right: ['いぬ', 'ねこ', 'とり'],
-  pairs: [
-    [0, 0],
-    [1, 1],
-    [2, 2],
-  ],
-});
-
-const fillTemplate = (): FillQuestion => ({
-  id: nextId(),
-  type: 'fill',
-  prompt: '私は____です。',
-  blanks: 1,
-  solutions: ['学生', 'せいと'],
-});
+/**
+ * Helper function to shuffle array (Fisher-Yates)
+ */
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 /**
- * Return a list of mixed-type questions with at least one of each kind when count >= 3.
+ * Get all available questions from all batches
  */
-export function getDailyQuestions(count: number): AnyQuestion[] {
+function getAllQuestions(): AnyQuestion[] {
+  const allQuestions: AnyQuestion[] = [];
+
+  // Load from all available batch files
+  if (n5Batch1?.questions) {
+    allQuestions.push(
+      ...(n5Batch1.questions as AnyQuestion[])
+    );
+  }
+
+  // TODO: Add more batches as they're created
+  // if (n5Batch2?.questions) allQuestions.push(...n5Batch2.questions);
+  // if (n5Batch3?.questions) allQuestions.push(...n5Batch3.questions);
+
+  return allQuestions;
+}
+
+/**
+ * Get daily questions - returns shuffled, non-overlapping selection
+ * @param count Number of questions to return (default: 10)
+ * @returns Array of questions
+ */
+export function getDailyQuestions(count: number = 10): AnyQuestion[] {
   if (!Number.isFinite(count) || count <= 0) return [];
 
-  const out: AnyQuestion[] = [];
-  const factories = [singleTemplate, matchTemplate, fillTemplate] as const;
+  const allQuestions = getAllQuestions();
 
-  // Ensure coverage of all types first (when enough slots)
-  for (let i = 0; i < factories.length && out.length < count; i++) {
-    out.push(factories[i]());
+  if (allQuestions.length === 0) {
+    console.warn('No questions available in question bank');
+    return [];
   }
 
-  // Fill the rest by cycling types
-  let idx = 0;
-  while (out.length < count) {
-    out.push(factories[idx % factories.length]());
-    idx++;
+  // Shuffle and select first 'count' questions
+  const shuffled = shuffleArray(allQuestions);
+  return shuffled.slice(0, Math.min(count, allQuestions.length));
+}
+
+/**
+ * Get questions by category
+ * @param category Filter by category
+ * @param count Number of questions to return
+ */
+export function getQuestionsByCategory(
+  category: QuestionCategory,
+  count: number = 10
+): AnyQuestion[] {
+  const allQuestions = getAllQuestions();
+  const filtered = allQuestions.filter((q) => q.category === category);
+
+  if (filtered.length === 0) {
+    console.warn(`No questions found for category: ${category}`);
+    return [];
   }
-  return out;
+
+  const shuffled = shuffleArray(filtered);
+  return shuffled.slice(0, Math.min(count, filtered.length));
+}
+
+/**
+ * Get questions by difficulty level
+ * @param difficulty Filter by difficulty (1-5)
+ * @param count Number of questions to return
+ */
+export function getQuestionsByDifficulty(
+  difficulty: 1 | 2 | 3 | 4 | 5,
+  count: number = 10
+): AnyQuestion[] {
+  const allQuestions = getAllQuestions();
+  const filtered = allQuestions.filter((q) => q.difficulty === difficulty);
+
+  if (filtered.length === 0) {
+    console.warn(`No questions found for difficulty: ${difficulty}`);
+    return [];
+  }
+
+  const shuffled = shuffleArray(filtered);
+  return shuffled.slice(0, Math.min(count, filtered.length));
+}
+
+/**
+ * Get question stats
+ */
+export function getQuestionStats() {
+  const allQuestions = getAllQuestions();
+
+  return {
+    total: allQuestions.length,
+    byType: {
+      single: allQuestions.filter((q) => q.type === 'single').length,
+      match: allQuestions.filter((q) => q.type === 'match').length,
+      fill: allQuestions.filter((q) => q.type === 'fill').length,
+    },
+    byCategory: {
+      vocabulary: allQuestions.filter((q) => q.category === 'vocabulary').length,
+      grammar: allQuestions.filter((q) => q.category === 'grammar').length,
+      kanji: allQuestions.filter((q) => q.category === 'kanji').length,
+      other: allQuestions.filter(
+        (q) => !['vocabulary', 'grammar', 'kanji'].includes(q.category)
+      ).length,
+    },
+    byDifficulty: {
+      1: allQuestions.filter((q) => q.difficulty === 1).length,
+      2: allQuestions.filter((q) => q.difficulty === 2).length,
+      3: allQuestions.filter((q) => q.difficulty === 3).length,
+      4: allQuestions.filter((q) => q.difficulty === 4).length,
+      5: allQuestions.filter((q) => q.difficulty === 5).length,
+    },
+  };
 }
