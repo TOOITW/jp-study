@@ -66,9 +66,11 @@ function checkMatchAnswer(q: MatchQuestion, userAnswer: unknown): CheckResult {
 
 function checkFillAnswer(q: FillQuestion, userAnswer: string): CheckResult {
   const normalized = userAnswer.trim();
-  const isCorrect = q.solutions.some(s => s.trim() === normalized);
+  // solutions is string[][], need to flatten and check
+  const allSolutions = q.solutions.flat();
+  const isCorrect = allSolutions.some(s => s.trim() === normalized);
   return {
     isCorrect,
-    feedback: isCorrect ? '正確！' : `錯誤。可接受答案：${q.solutions.join('、')}`,
+    feedback: isCorrect ? '正確!' : `錯誤。可接受答案：${allSolutions.join('、')}`,
   };
 }

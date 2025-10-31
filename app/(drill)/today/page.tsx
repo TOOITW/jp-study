@@ -10,6 +10,7 @@ import {
   saveQuestionsToCache, 
   getCacheInfo 
 } from '@/frontend/lib/storage/indexeddb';
+import { calculateNextReviewTime } from '@/frontend/lib/srs/scheduler';
 
 type LoadingState = 'loading' | 'content' | 'completed' | 'error' | 'empty';
 
@@ -111,10 +112,17 @@ export default function DailyDrillPage() {
         return question?.answerKey === ans;
       }).length;
 
+      const incorrectCount = (sessionData?.questions?.length || 0) - correctCount;
+
+      // Calculate next review time for wrong questions using SRS
+      const nextReviewMs = calculateNextReviewTime(correctCount, incorrectCount);
+      const nextReviewAt = new Date(Date.now() + nextReviewMs);
+
       const summary = {
         totalQuestions: sessionData?.questions?.length || 0,
         correctAnswers: correctCount,
         accuracy: (correctCount / (sessionData?.questions?.length || 1)) * 100,
+        nextReviewAt, // Add next review time to summary
         wrongQuestions: Object.entries(newAnswers)
           .map(([idx, ans]) => {
             const index = parseInt(idx);
@@ -227,6 +235,22 @@ export default function DailyDrillPage() {
               <span data-testid="total-count">{sessionSummary.totalQuestions}</span>
               {' 問正解'}
             </div>
+
+            {/* Next review time (SRS-based) */}
+            {sessionSummary.nextReviewAt && (
+              <div data-testid="next-review-time" className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded max-w-md mx-auto">
+                <div className="text-sm text-blue-700 font-semibold mb-1">📅 建議下次複習</div>
+                <div className="text-lg text-blue-900">
+                  {new Date(sessionSummary.nextReviewAt).toLocaleDateString('ja-JP', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Wrong questions section (placeholder for future) */}
             {sessionSummary.correctAnswers < sessionSummary.totalQuestions && (
