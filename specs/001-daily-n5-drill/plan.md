@@ -138,6 +138,17 @@ AC-6 UI fixed layout + states
   - test_AC-6_e2e_layout_header_body_footer_present
   - test_AC-6_e2e_skeleton_empty_error_states
 
+AC-7 Offline Cache & Background Sync (Enhanced offline capability)
+- Tests:
+  - test_AC-7_integration_offline_cache_stores_questions_for_7_days
+  - test_AC-7_integration_offline_retrieval_serves_from_cache
+  - test_AC-7_integration_reconnect_triggers_background_sync
+  - test_AC-7_integration_cache_expiry_after_7_days
+  - test_AC-7_unit_schema_version_migration
+  - test_AC-7_integration_sync_conflict_resolution
+  - test_AC-7_integration_sync_queue_batching
+  - test_AC-7_integration_offline_session_completion_and_storage
+
 Naming rule: include AC-? in each test name. Red → Green → Refactor.
 
 ## 9) Risks & Rollback
