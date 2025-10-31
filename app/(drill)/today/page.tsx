@@ -11,6 +11,11 @@ import {
   getCacheInfo 
 } from '@/frontend/lib/storage/indexeddb';
 import { calculateNextReviewTime } from '@/frontend/lib/srs/scheduler';
+import { 
+  emitDrillStarted, 
+  emitAnswerEvent, 
+  emitSessionCompleted 
+} from '@/frontend/lib/telemetry/events';
 
 type LoadingState = 'loading' | 'content' | 'completed' | 'error' | 'empty';
 
@@ -21,6 +26,9 @@ export default function DailyDrillPage() {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [sessionSummary, setSessionSummary] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string>('');
+  const [sessionStartTime, setSessionStartTime] = useState<number>(0);
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
 
   useEffect(() => {
     // Initialize session with offline-first strategy
@@ -88,7 +96,13 @@ export default function DailyDrillPage() {
         };
 
         setSessionData(session);
+        setSessionId(session.id);
+        setSessionStartTime(session.createdAt);
+        setQuestionStartTime(Date.now());
         setState('content');
+
+        // 📊 Telemetry: Emit drill_started event
+        emitDrillStarted(session.id, questions.length);
       } catch (error) {
         console.error('Failed to initialize session:', error);
         setErrorMessage('An unexpected error occurred.');
@@ -100,11 +114,19 @@ export default function DailyDrillPage() {
   }, []);
 
   const handleNextQuestion = (answer: string) => {
+    const question = sessionData.questions[currentQuestionIndex];
+    const isCorrect = question?.answerKey === answer;
+    const latencyMs = Date.now() - questionStartTime;
+
+    // 📊 Telemetry: Emit answer event
+    emitAnswerEvent(sessionId, question?.id || `q-${currentQuestionIndex}`, isCorrect, latencyMs);
+
     const newAnswers = { ...answers, [currentQuestionIndex]: answer };
     setAnswers(newAnswers);
 
     if (currentQuestionIndex < (sessionData?.questions?.length || 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setQuestionStartTime(Date.now()); // Reset timer for next question
     } else {
       // Session completed
       const correctCount = Object.entries(newAnswers).filter(([idx, ans]) => {
@@ -118,10 +140,17 @@ export default function DailyDrillPage() {
       const nextReviewMs = calculateNextReviewTime(correctCount, incorrectCount);
       const nextReviewAt = new Date(Date.now() + nextReviewMs);
 
+      const totalQuestions = sessionData?.questions?.length || 0;
+      const accuracy = (correctCount / totalQuestions) * 100;
+      const durationMs = Date.now() - sessionStartTime;
+
+      // 📊 Telemetry: Emit session_completed event
+      emitSessionCompleted(sessionId, totalQuestions, correctCount, accuracy, durationMs);
+
       const summary = {
-        totalQuestions: sessionData?.questions?.length || 0,
+        totalQuestions,
         correctAnswers: correctCount,
-        accuracy: (correctCount / (sessionData?.questions?.length || 1)) * 100,
+        accuracy,
         nextReviewAt, // Add next review time to summary
         wrongQuestions: Object.entries(newAnswers)
           .map(([idx, ans]) => {
