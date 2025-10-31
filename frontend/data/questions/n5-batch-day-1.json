@@ -1,0 +1,580 @@
+{
+  "version": "1.0.0",
+  "level": "N5",
+  "totalQuestions": 30,
+  "questions": [
+    {
+      "id": "n5-001",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 1,
+      "prompt": "「朝」の意味は？",
+      "options": [
+        "早い時間",
+        "昼間",
+        "夜",
+        "季節"
+      ],
+      "answerIndex": 0,
+      "explanation": "「朝」=morning",
+      "tags": [
+        "time",
+        "basic"
+      ]
+    },
+    {
+      "id": "n5-002",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 1,
+      "prompt": "「水」を英語で言うと？",
+      "options": [
+        "Fire",
+        "Water",
+        "Earth",
+        "Wind"
+      ],
+      "answerIndex": 1,
+      "explanation": "「水」=water",
+      "tags": [
+        "noun",
+        "basic"
+      ]
+    },
+    {
+      "id": "n5-003",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「赤い」ものはどれ？",
+      "options": [
+        "空",
+        "りんご",
+        "木",
+        "川"
+      ],
+      "answerIndex": 1,
+      "explanation": "りんごは赤い色をしています。",
+      "tags": [
+        "color",
+        "adjective"
+      ]
+    },
+    {
+      "id": "n5-004",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「食べる」の意味は？",
+      "options": [
+        "走る",
+        "飲む",
+        "食事をする",
+        "見る"
+      ],
+      "answerIndex": 2,
+      "explanation": "「食べる」=to eat",
+      "tags": [
+        "verb",
+        "daily"
+      ]
+    },
+    {
+      "id": "n5-005",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「駅」でできることは？",
+      "options": [
+        "泳ぐ",
+        "乗り物に乗る",
+        "寝る",
+        "料理する"
+      ],
+      "answerIndex": 1,
+      "explanation": "駅では電車に乗ることができます。",
+      "tags": [
+        "place",
+        "transport"
+      ]
+    },
+    {
+      "id": "n5-006",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「友だち」とはどんな人？",
+      "options": [
+        "知らない人",
+        "一緒に遊ぶ人",
+        "先生",
+        "お店の人"
+      ],
+      "answerIndex": 1,
+      "explanation": "友だちは一緒に遊ぶ仲の良い人です。",
+      "tags": [
+        "relationship",
+        "noun"
+      ]
+    },
+    {
+      "id": "n5-007",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「安い」の反対は？",
+      "options": [
+        "高い",
+        "広い",
+        "遠い",
+        "速い"
+      ],
+      "answerIndex": 0,
+      "explanation": "「安い」(cheap)の反対は「高い」(expensive)。",
+      "tags": [
+        "adjective",
+        "antonym"
+      ]
+    },
+    {
+      "id": "n5-008",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 1,
+      "prompt": "「学校」に行く理由は？",
+      "options": [
+        "遊ぶため",
+        "勉強するため",
+        "寝るため",
+        "買い物するため"
+      ],
+      "answerIndex": 1,
+      "explanation": "学校では勉強します。",
+      "tags": [
+        "place",
+        "education"
+      ]
+    },
+    {
+      "id": "n5-009",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「天気がいい」とはどんな日？",
+      "options": [
+        "雨の日",
+        "曇りの日",
+        "晴れの日",
+        "雪の日"
+      ],
+      "answerIndex": 2,
+      "explanation": "天気がいい＝晴れの日。",
+      "tags": [
+        "weather",
+        "adjective"
+      ]
+    },
+    {
+      "id": "n5-010",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 4,
+      "prompt": "「勉強する」はどんな動作？",
+      "options": [
+        "体を動かす",
+        "知識を学ぶ",
+        "食べる",
+        "遊ぶ"
+      ],
+      "answerIndex": 1,
+      "explanation": "「勉強する」=to study, learn knowledge.",
+      "tags": [
+        "verb",
+        "learning"
+      ]
+    },
+    {
+      "id": "n5-011",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「車」でできることは？",
+      "options": [
+        "寝る",
+        "走る",
+        "書く",
+        "食べる"
+      ],
+      "answerIndex": 1,
+      "explanation": "車は走るものです。",
+      "tags": [
+        "transport",
+        "noun"
+      ]
+    },
+    {
+      "id": "n5-012",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「白い」の反対は？",
+      "options": [
+        "黒い",
+        "赤い",
+        "青い",
+        "黄色い"
+      ],
+      "answerIndex": 0,
+      "explanation": "「白い」(white)の反対は「黒い」(black)。",
+      "tags": [
+        "color",
+        "adjective"
+      ]
+    },
+    {
+      "id": "n5-013",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「犬」がすることは？",
+      "options": [
+        "鳴く",
+        "飛ぶ",
+        "泳ぐ",
+        "書く"
+      ],
+      "answerIndex": 0,
+      "explanation": "犬は「ワンワン」と鳴きます。",
+      "tags": [
+        "animal",
+        "verb"
+      ]
+    },
+    {
+      "id": "n5-014",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「本屋」で何が買えますか？",
+      "options": [
+        "りんご",
+        "本",
+        "服",
+        "花"
+      ],
+      "answerIndex": 1,
+      "explanation": "本屋では本を買います。",
+      "tags": [
+        "place",
+        "shopping"
+      ]
+    },
+    {
+      "id": "n5-015",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 1,
+      "prompt": "「食べ物」はどんなもの？",
+      "options": [
+        "見るもの",
+        "使うもの",
+        "食べるもの",
+        "聞くもの"
+      ],
+      "answerIndex": 2,
+      "explanation": "「食べ物」=things to eat。",
+      "tags": [
+        "noun",
+        "daily"
+      ]
+    },
+    {
+      "id": "n5-016",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 4,
+      "prompt": "「休みたい」と言う時の気持ちは？",
+      "options": [
+        "元気",
+        "疲れている",
+        "楽しい",
+        "忙しい"
+      ],
+      "answerIndex": 1,
+      "explanation": "「休みたい」=tired and want rest。",
+      "tags": [
+        "emotion",
+        "verb"
+      ]
+    },
+    {
+      "id": "n5-017",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 3,
+      "prompt": "「時計」は何を見るためのもの？",
+      "options": [
+        "時間",
+        "天気",
+        "地図",
+        "顔"
+      ],
+      "answerIndex": 0,
+      "explanation": "時計は時間を見るものです。",
+      "tags": [
+        "object",
+        "time"
+      ]
+    },
+    {
+      "id": "n5-018",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 2,
+      "prompt": "「暑い」季節は？",
+      "options": [
+        "春",
+        "夏",
+        "秋",
+        "冬"
+      ],
+      "answerIndex": 1,
+      "explanation": "夏は暑い季節です。",
+      "tags": [
+        "season",
+        "adjective"
+      ]
+    },
+    {
+      "id": "n5-019",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 4,
+      "prompt": "「店員」はどんな人？",
+      "options": [
+        "買う人",
+        "売る人",
+        "作る人",
+        "見る人"
+      ],
+      "answerIndex": 1,
+      "explanation": "店員はお店で物を売る人です。",
+      "tags": [
+        "occupation",
+        "noun"
+      ]
+    },
+    {
+      "id": "n5-020",
+      "type": "single",
+      "category": "vocabulary",
+      "difficulty": 5,
+      "prompt": "「入口」の反対語は？",
+      "options": [
+        "前",
+        "出口",
+        "中",
+        "後ろ"
+      ],
+      "answerIndex": 1,
+      "explanation": "入口の反対は出口です。",
+      "tags": [
+        "place",
+        "opposite"
+      ]
+    },
+    {
+      "id": "n5-021",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 2,
+      "prompt": "正しい文はどれ？",
+      "options": [
+        "私は学生がです。",
+        "私は学生です。",
+        "私が学生はです。",
+        "私学生です。"
+      ],
+      "answerIndex": 1,
+      "explanation": "「私は学生です」が正しいです。",
+      "tags": [
+        "grammar",
+        "copula"
+      ]
+    },
+    {
+      "id": "n5-022",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 3,
+      "prompt": "「〜ません」はどんな形？",
+      "options": [
+        "肯定形",
+        "否定形",
+        "過去形",
+        "命令形"
+      ],
+      "answerIndex": 1,
+      "explanation": "「〜ません」は否定形です。",
+      "tags": [
+        "verb",
+        "negative"
+      ]
+    },
+    {
+      "id": "n5-023",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 4,
+      "prompt": "「どこへ行きますか？」の答えとして正しいのは？",
+      "options": [
+        "行きません。",
+        "駅へ行きます。",
+        "駅が行きます。",
+        "駅にいます。"
+      ],
+      "answerIndex": 1,
+      "explanation": "「へ」は方向を表します。",
+      "tags": [
+        "particle",
+        "direction"
+      ]
+    },
+    {
+      "id": "n5-024",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 3,
+      "prompt": "「〜から〜まで」は何を表しますか？",
+      "options": [
+        "人",
+        "時間や場所の範囲",
+        "理由",
+        "状態"
+      ],
+      "answerIndex": 1,
+      "explanation": "「〜から〜まで」=from...to...",
+      "tags": [
+        "particle",
+        "range"
+      ]
+    },
+    {
+      "id": "n5-025",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 5,
+      "prompt": "「おいしくない」の形は？",
+      "options": [
+        "い形容詞の否定形",
+        "な形容詞の否定形",
+        "動詞の否定形",
+        "名詞の否定形"
+      ],
+      "answerIndex": 0,
+      "explanation": "「おいしい」→「おいしくない」はい形容詞の否定形です。",
+      "tags": [
+        "adjective",
+        "negative"
+      ]
+    },
+    {
+      "id": "n5-026",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 4,
+      "prompt": "「図書館で本を読みます。」で「で」は何を表しますか？",
+      "options": [
+        "方向",
+        "場所",
+        "手段",
+        "目的"
+      ],
+      "answerIndex": 1,
+      "explanation": "「で」は動作が行われる場所を表します。",
+      "tags": [
+        "particle",
+        "location"
+      ]
+    },
+    {
+      "id": "n5-027",
+      "type": "single",
+      "category": "grammar",
+      "difficulty": 3,
+      "prompt": "「〜が好きです」はどんな意味？",
+      "options": [
+        "持っている",
+        "できる",
+        "好む",
+        "分かる"
+      ],
+      "answerIndex": 2,
+      "explanation": "「好きです」=like/love。",
+      "tags": [
+        "expression",
+        "emotion"
+      ]
+    },
+    {
+      "id": "n5-028",
+      "type": "single",
+      "category": "kanji",
+      "difficulty": 3,
+      "prompt": "「山」はどんな意味？",
+      "options": [
+        "川",
+        "森",
+        "山",
+        "空"
+      ],
+      "answerIndex": 2,
+      "explanation": "「山」=mountain。",
+      "tags": [
+        "kanji",
+        "nature"
+      ]
+    },
+    {
+      "id": "n5-029",
+      "type": "single",
+      "category": "kanji",
+      "difficulty": 4,
+      "prompt": "「日本」の「本」は何を意味しますか？",
+      "options": [
+        "国",
+        "木",
+        "元・起源",
+        "語"
+      ],
+      "answerIndex": 2,
+      "explanation": "「本」は根本・起源を意味します。「日本」=sun’s origin。",
+      "tags": [
+        "kanji",
+        "meaning"
+      ]
+    },
+    {
+      "id": "n5-030",
+      "type": "single",
+      "category": "kanji",
+      "difficulty": 5,
+      "prompt": "「学生」の「生」の意味は？",
+      "options": [
+        "死ぬ",
+        "生きる・学ぶ",
+        "買う",
+        "遊ぶ"
+      ],
+      "answerIndex": 1,
+      "explanation": "「生」はlife, birth, learningの意味を持ちます。",
+      "tags": [
+        "kanji",
+        "education"
+      ]
+    }
+  ],
+  "batch": "day-1",
+  "dateCreated": "2025-10-31",
+  "source": "gpt-generated"
+}
