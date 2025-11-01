@@ -12,6 +12,7 @@ export interface GameConfig {
   cols: number;
   rows: number;
   speedMs: number;
+  wrap: boolean; // whether snake wraps through walls
 }
 
 export interface GameState {

@@ -33,6 +33,9 @@ export default function ImmersiveClient() {
       setOptions(['たべる', 'のむ', 'いく', 'みる']);
     }
 
+    // Fallback if options still empty
+    setOptions((prev) => (prev && prev.length > 0 ? prev : ['①', '②', '③', '④']));
+
     emitImmersiveEntered('snake');
   }, []);
 

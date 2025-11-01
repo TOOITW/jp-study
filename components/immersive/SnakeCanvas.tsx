@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { initGame, step, changeDirection, updateSpeed } from '@/frontend/game/snake/core';
+import { initGame, step, changeDirection, updateSpeed, updateWrap } from '@/frontend/game/snake/core';
 import { renderToCanvas } from '@/frontend/game/snake/renderer/canvas';
 import { emitSnakeFoodConsumed } from '@/frontend/lib/telemetry/events';
 
@@ -13,9 +13,10 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [running, setRunning] = useState(true);
   const [state, setState] = useState(() =>
-    initGame({ speedMs: 200 }, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
+    initGame({ speedMs: 200, wrap: true }, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
   ));
   const [speed, setSpeed] = useState<number>(200);
+  const [wrap, setWrap] = useState<boolean>(true);
 
   // Keyboard controls
   useEffect(() => {
@@ -61,6 +62,11 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
     setState((s) => updateSpeed(s, speed));
   }, [speed]);
 
+  // Apply wrap changes
+  useEffect(() => {
+    setState((s) => updateWrap(s, wrap));
+  }, [wrap]);
+
   // Render
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -80,6 +86,13 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
           className="px-3 py-1 text-sm rounded bg-gray-800/70 hover:bg-gray-700 border border-gray-700"
         >
           {running ? 'Pause' : 'Resume'}
+        </button>
+        <button
+          onClick={() => setWrap((w) => !w)}
+          className="px-3 py-1 text-sm rounded bg-gray-800/70 hover:bg-gray-700 border border-gray-700"
+          aria-pressed={wrap}
+        >
+          Wrap: {wrap ? 'On' : 'Off'}
         </button>
         <select
           value={speed}

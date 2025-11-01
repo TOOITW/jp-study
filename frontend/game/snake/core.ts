@@ -5,6 +5,7 @@ export function initGame(cfg: Partial<GameConfig> = {}, seedFoods: Omit<Food, 'p
     cols: cfg.cols ?? 20,
     rows: cfg.rows ?? 14,
     speedMs: cfg.speedMs ?? 200,
+    wrap: cfg.wrap ?? false,
   };
 
   const center: GridPos = { x: Math.floor(config.cols / 2), y: Math.floor(config.rows / 2) };
@@ -27,11 +28,22 @@ export function step(state: GameState): GameState {
   if (state.gameOver) return state;
 
   const head = state.snake[0];
-  const nextHead = move(head, state.dir);
+  let nextHead = move(head, state.dir);
 
-  // Wall collision
-  if (nextHead.x < 0 || nextHead.x >= state.cfg.cols || nextHead.y < 0 || nextHead.y >= state.cfg.rows) {
-    return { ...state, gameOver: true };
+  // Wall handling: wrap or collide
+  if (
+    nextHead.x < 0 ||
+    nextHead.x >= state.cfg.cols ||
+    nextHead.y < 0 ||
+    nextHead.y >= state.cfg.rows
+  ) {
+    if (state.cfg.wrap) {
+      const nx = ((nextHead.x % state.cfg.cols) + state.cfg.cols) % state.cfg.cols;
+      const ny = ((nextHead.y % state.cfg.rows) + state.cfg.rows) % state.cfg.rows;
+      nextHead = { x: nx, y: ny };
+    } else {
+      return { ...state, gameOver: true };
+    }
   }
 
   // Self collision
@@ -99,4 +111,8 @@ function move(p: GridPos, dir: Direction): GridPos {
     case 'right':
       return { x: p.x + 1, y: p.y };
   }
+}
+
+export function updateWrap(state: GameState, wrap: boolean): GameState {
+  return { ...state, cfg: { ...state.cfg, wrap } };
 }
