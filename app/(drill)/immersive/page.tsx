@@ -1,47 +1,14 @@
-'use client';
-
-import React, { useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { isFeatureEnabled } from '@/frontend/lib/featureFlags';
-import GameShell from '@/components/immersive/GameShell';
-import LanguagePanel from '@/components/immersive/LanguagePanel';
-import SnakeCanvas from '@/components/immersive/SnakeCanvas';
-import { getDailyQuestions } from '@/frontend/lib/drill/question-bank';
-import { emitImmersiveEntered } from '@/frontend/lib/telemetry/events';
+import ImmersiveClient from '@/components/immersive/ImmersiveClient';
 
-export default function ImmersivePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
-  // Compute feature flag from env or server-provided searchParams to keep SSR/CSR consistent
-  const enabled = isFeatureEnabled('immersive_snake', { searchParams });
-  const [prompt, setPrompt] = useState<string>('');
-  const [options, setOptions] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Load a single question to seed the options panel (temporary MVP source)
-    try {
-      const qs = getDailyQuestions(1);
-      if (qs && qs[0]) {
-        const q = qs[0] as any;
-        if (q.type === 'single') {
-          setPrompt(q.prompt);
-          setOptions(q.options);
-        } else if (q.type === 'match') {
-          setPrompt(q.instruction);
-          setOptions(q.left?.slice(0, 4) || []);
-        } else if (q.type === 'fill') {
-          setPrompt(q.prompt);
-          // use first solutions as options (flatten)
-          const opts: string[] = Array.isArray(q.solutions) && q.solutions.length > 0 ? q.solutions[0] : [];
-          setOptions(opts.slice(0, 4));
-        }
-      }
-    } catch (e) {
-      // Fallback demo content
-      setPrompt('「食べる」の正しい読みは？');
-      setOptions(['たべる', 'のむ', 'いく', 'みる']);
-    }
-      if (enabled) {
-        emitImmersiveEntered('snake');
-      }
-  }, [enabled]);
+export default async function ImmersivePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const enabled = isFeatureEnabled('immersive_snake', { searchParams: sp });
 
   if (!enabled) {
     return (
@@ -56,10 +23,5 @@ export default function ImmersivePage({ searchParams }: { searchParams?: Record<
     );
   }
 
-  return (
-    <GameShell>
-      <LanguagePanel prompt={prompt} target={options[0] || ''} options={options} />
-      <SnakeCanvas options={options} />
-    </GameShell>
-  );
+  return <ImmersiveClient />;
 }
