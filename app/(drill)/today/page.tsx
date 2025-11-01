@@ -195,6 +195,18 @@ export default function DailyDrillPage() {
   if (state === 'loading') {
     return (
       <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        {/* Immersive entry (feature flag via env only to avoid SSR/CSR mismatch) */}
+        {(process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === '1' || process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === 'true') && (
+          <div className="absolute top-4 right-4 z-10">
+            <a
+              data-testid="immersive-entry-link"
+              href="/immersive?immersive_snake=1"
+              className="px-3 py-1 text-xs rounded bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
+            >
+              Immersive Snake
+            </a>
+          </div>
+        )}
         <div data-testid="loading-skeleton" className="flex items-center justify-center min-h-screen">
           <div data-testid="loading-state" className="text-center animate-pulse">
             <div className="h-12 bg-gray-300 rounded w-48 mb-4 mx-auto"></div>
@@ -208,6 +220,17 @@ export default function DailyDrillPage() {
   if (state === 'error') {
     return (
       <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        {(process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === '1' || process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === 'true') && (
+          <div className="absolute top-4 right-4 z-10">
+            <a
+              data-testid="immersive-entry-link"
+              href="/immersive?immersive_snake=1"
+              className="px-3 py-1 text-xs rounded bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
+            >
+              Immersive Snake
+            </a>
+          </div>
+        )}
         <div data-testid="error-state" className="flex items-center justify-center min-h-screen">
           <div className="text-center p-8 bg-red-50 rounded-lg border-2 border-red-200 max-w-md">
             <h2 className="text-2xl font-bold text-red-600 mb-4">エラーが発生しました</h2>
@@ -229,6 +252,17 @@ export default function DailyDrillPage() {
   if (state === 'empty') {
     return (
       <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        {(process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === '1' || process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === 'true') && (
+          <div className="absolute top-4 right-4 z-10">
+            <a
+              data-testid="immersive-entry-link"
+              href="/immersive?immersive_snake=1"
+              className="px-3 py-1 text-xs rounded bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
+            >
+              Immersive Snake
+            </a>
+          </div>
+        )}
         <div data-testid="empty-state" className="flex items-center justify-center min-h-screen">
           <div className="text-center p-8 bg-yellow-50 rounded-lg border-2 border-yellow-200 max-w-md">
             <h2 className="text-2xl font-bold text-yellow-700 mb-4">問題がありません</h2>
@@ -250,6 +284,17 @@ export default function DailyDrillPage() {
   if (state === 'completed' && sessionSummary) {
     return (
       <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
+        {(process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === '1' || process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === 'true') && (
+          <div className="absolute top-4 right-4 z-10">
+            <a
+              data-testid="immersive-entry-link"
+              href="/immersive?immersive_snake=1"
+              className="px-3 py-1 text-xs rounded bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
+            >
+              Immersive Snake
+            </a>
+          </div>
+        )}
         <div data-testid="session-completed" className="flex flex-col items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">セッション完了</h1>
@@ -333,6 +378,17 @@ export default function DailyDrillPage() {
 
   return (
     <div data-testid="drill-layout" className="min-h-screen bg-gray-50 flex flex-col">
+      {(process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === '1' || process.env.NEXT_PUBLIC_FEATURE_IMMERSIVE_SNAKE === 'true') && (
+        <div className="absolute top-4 right-4 z-10">
+          <a
+            data-testid="immersive-entry-link"
+            href="/immersive?immersive_snake=1"
+            className="px-3 py-1 text-xs rounded bg-gray-800 text-white hover:bg-gray-700 border border-gray-700"
+          >
+            Immersive Snake
+          </a>
+        </div>
+      )}
       {/* Header */}
       <SessionHeader
         currentQuestion={currentQuestionIndex + 1}
