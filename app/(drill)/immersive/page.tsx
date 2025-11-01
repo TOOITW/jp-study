@@ -8,8 +8,9 @@ import SnakeCanvas from '@/components/immersive/SnakeCanvas';
 import { getDailyQuestions } from '@/frontend/lib/drill/question-bank';
 import { emitImmersiveEntered } from '@/frontend/lib/telemetry/events';
 
-export default function ImmersivePage() {
-  const enabled = isFeatureEnabled('immersive_snake');
+export default function ImmersivePage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  // Compute feature flag from env or server-provided searchParams to keep SSR/CSR consistent
+  const enabled = isFeatureEnabled('immersive_snake', { searchParams });
   const [prompt, setPrompt] = useState<string>('');
   const [options, setOptions] = useState<string[]>([]);
 
@@ -40,7 +41,7 @@ export default function ImmersivePage() {
       if (enabled) {
         emitImmersiveEntered('snake');
       }
-  }, []);
+  }, [enabled]);
 
   if (!enabled) {
     return (
