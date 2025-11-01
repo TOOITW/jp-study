@@ -195,7 +195,7 @@ export default function DailyDrillPage() {
   if (state === 'loading') {
     return (
       <div data-testid="drill-layout" className="min-h-screen bg-gray-50">
-        <div data-testid="skeleton-state" className="flex items-center justify-center min-h-screen">
+        <div data-testid="loading-skeleton" className="flex items-center justify-center min-h-screen">
           <div data-testid="loading-state" className="text-center animate-pulse">
             <div className="h-12 bg-gray-300 rounded w-48 mb-4 mx-auto"></div>
             <div className="h-6 bg-gray-300 rounded w-64 mx-auto"></div>
@@ -343,6 +343,21 @@ export default function DailyDrillPage() {
         }).length}
         startedAt={sessionData?.createdAt}
       />
+
+      {/* Experimental Immersive entry (feature-flagged via query/env) */}
+      <div className="container mx-auto px-4 mt-4">
+        <div className="rounded-md border border-indigo-200 bg-indigo-50 p-3 text-sm text-indigo-700">
+          <div className="flex items-center justify-between">
+            <span>試玩 Immersive Snake Mode（實驗中）</span>
+            <a
+              href="/immersive?immersive_snake=1"
+              className="ml-4 inline-block rounded bg-indigo-600 px-3 py-1 text-white hover:bg-indigo-700"
+            >
+              前往
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Main content body */}
       <div data-testid="drill-body" className="flex-1 container mx-auto p-4">

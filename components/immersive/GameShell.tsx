@@ -1,0 +1,24 @@
+"use client";
+
+import React from 'react';
+
+interface GameShellProps {
+  children: React.ReactNode[] | React.ReactNode;
+}
+
+/**
+ * 30/70 split layout for Immersive Mode (top language, bottom game).
+ */
+export default function GameShell({ children }: GameShellProps) {
+  const [top, bottom] = Array.isArray(children) ? children : [children, null];
+  return (
+    <div data-testid="immersive-shell" className="min-h-screen bg-gray-950 text-white flex flex-col">
+      <div className="flex-1 basis-3/10 p-4 border-b border-gray-800">
+        <div className="max-w-5xl mx-auto h-full">{top}</div>
+      </div>
+      <div className="flex-[0_0_70%] grow p-0">
+        <div className="max-w-6xl mx-auto h-full">{bottom}</div>
+      </div>
+    </div>
+  );
+}
