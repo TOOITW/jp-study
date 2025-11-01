@@ -11,8 +11,6 @@
 
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
-
 test.describe('AC-6 E2E — UI Layout and States', () => {
   
   // ========================================
@@ -20,7 +18,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   // ========================================
   
   test('test_AC-6_e2e_layout_has_header_main_footer', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto('/today');
     
     // Wait for page to load
     await page.waitForSelector('[data-testid="drill-layout"]', { timeout: 5000 });
@@ -39,7 +37,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_header_shows_question_progress', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="session-header"]', { timeout: 5000 });
     
     const header = page.locator('[data-testid="session-header"]');
@@ -47,7 +45,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_question_card_visible_in_content', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     
     // Wait for content to load (not loading state)
     await page.waitForSelector('[data-testid="question-card"]', { timeout: 5000 });
@@ -61,7 +59,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_actions_bar_has_skip_next_buttons', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="actions-bar"]', { timeout: 5000 });
     
     const actionsBar = page.locator('[data-testid="actions-bar"]');
@@ -77,20 +75,21 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   // ========================================
 
   test('test_AC-6_e2e_shows_loading_skeleton_initially', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     
-    // Loading skeleton should appear briefly
-    // (This might be very fast, so we just check it exists in DOM)
+    // Wait for either loading skeleton or question card to be attached
+    await page.waitForSelector('[data-testid="loading-skeleton"], [data-testid="question-card"]', { timeout: 5000 });
+
+    // Loading skeleton may disappear quickly; accept either visible state
     const skeleton = page.locator('[data-testid="loading-skeleton"]');
-    // Check if it's either visible or already transitioned to content
     const isVisible = await skeleton.isVisible().catch(() => false);
-    const questionCardVisible = await page.locator('[data-testid="question-card"]').isVisible();
-    
+    const questionCardVisible = await page.locator('[data-testid="question-card"]').isVisible().catch(() => false);
+
     expect(isVisible || questionCardVisible).toBeTruthy();
   });
 
   test('test_AC-6_e2e_shows_empty_state_when_no_questions', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today?empty=true`);
+    await page.goto(`/today?empty=true`);
     
     // Wait for empty state
     await page.waitForSelector('[data-testid="empty-state"]', { timeout: 5000 });
@@ -101,7 +100,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_shows_error_state_on_failure', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today?error=true`);
+    await page.goto(`/today?error=true`);
     
     // Wait for error state
     await page.waitForSelector('[data-testid="error-state"]', { timeout: 5000 });
@@ -115,7 +114,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_error_state_has_retry_button', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today?error=true`);
+    await page.goto(`/today?error=true`);
     await page.waitForSelector('[data-testid="error-state"]', { timeout: 5000 });
     
     // Retry button should be present
@@ -128,7 +127,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   // ========================================
 
   test('test_AC-6_e2e_can_select_answer_and_proceed', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="question-card"]', { timeout: 5000 });
     
     // Get initial question number
@@ -148,7 +147,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_can_skip_question', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="actions-bar"]', { timeout: 5000 });
     
     // Get initial progress
@@ -168,7 +167,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_shows_completion_screen_after_all_questions', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="question-card"]', { timeout: 5000 });
     
     // Answer all questions by repeatedly clicking first option and waiting
@@ -190,7 +189,7 @@ test.describe('AC-6 E2E — UI Layout and States', () => {
   });
 
   test('test_AC-6_e2e_completion_shows_accuracy_score', async ({ page }) => {
-    await page.goto(`${BASE_URL}/today`);
+    await page.goto(`/today`);
     await page.waitForSelector('[data-testid="question-card"]', { timeout: 5000 });
     
     // Answer all questions

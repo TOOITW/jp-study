@@ -70,7 +70,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       className="bg-white rounded-lg shadow-md p-6 my-4 border border-gray-200"
     >
       {/* Question Text */}
-      <h2 data-testid="question-text" className="text-lg font-semibold text-gray-800 mb-4">
+      <h2 data-testid="question-prompt" className="text-lg font-semibold text-gray-800 mb-4">
         {question.prompt}
       </h2>
 
@@ -80,7 +80,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {question.options.map((option, idx) => (
             <button
               key={idx}
-              data-testid="answer-option"
+              data-testid={`option-${idx}`}
               data-selected={selectedAnswer === option ? 'true' : 'false'}
               onClick={() => handleSelectOption(option)}
               disabled={disabled}

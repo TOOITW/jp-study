@@ -25,7 +25,7 @@ export const ActionsBar: React.FC<ActionsBarProps> = ({
 }) => {
   return (
     <footer
-      data-testid="drill-actions"
+      data-testid="actions-bar"
       className="bg-white border-t border-gray-200 shadow-lg sticky bottom-0"
     >
       <div className="max-w-2xl mx-auto px-4 py-4 flex gap-4 justify-center">

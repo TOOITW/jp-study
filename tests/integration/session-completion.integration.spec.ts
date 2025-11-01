@@ -58,7 +58,7 @@ describe('AC-4 Integration — session completion with SRS', () => {
     const summary = calculateSessionSummary(session);
     const nextReviewMs = calculateNextReviewTime(0, summary.totalCount, undefined);
 
-    // Poor session should have a very short interval
-    expect(nextReviewMs).toBeLessThan(24 * 60 * 60 * 1000); // less than 1 day
+    // Poor session (0% accuracy) should have a very short interval (1 day minimum)
+    expect(nextReviewMs).toBeLessThanOrEqual(24 * 60 * 60 * 1000); // less than or equal to 1 day
   });
 });

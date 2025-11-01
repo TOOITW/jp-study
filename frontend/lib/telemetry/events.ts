@@ -50,6 +50,29 @@ export const sessionCompletedEventSchema = {
   required: ['type', 'sessionId', 'total', 'correct', 'accuracy', 'durationMs', 'clientTs'],
 };
 
+// Immersive Mode (experimental) schemas
+export const immersiveEnteredEventSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: 'immersive_entered' },
+    mode: { type: 'string' },
+    clientTs: { type: 'number' },
+  },
+  required: ['type', 'mode', 'clientTs'],
+};
+
+export const snakeFoodConsumedEventSchema = {
+  type: 'object',
+  properties: {
+    type: { type: 'string', const: 'snake_food_consumed' },
+    label: { type: 'string' },
+    score: { type: 'number' },
+    tick: { type: 'number' },
+    clientTs: { type: 'number' },
+  },
+  required: ['type', 'label', 'score', 'tick', 'clientTs'],
+};
+
 /**
  * Global event emitter for telemetry events
  */
@@ -85,7 +108,26 @@ export interface SessionCompletedEvent {
   clientTs: number;
 }
 
-export type TelemetryEvent = DrillStartedEvent | AnswerEvent | SessionCompletedEvent;
+export interface ImmersiveEnteredEvent {
+  type: 'immersive_entered';
+  mode: string; // e.g., 'snake'
+  clientTs: number;
+}
+
+export interface SnakeFoodConsumedEvent {
+  type: 'snake_food_consumed';
+  label: string;
+  score: number;
+  tick: number;
+  clientTs: number;
+}
+
+export type TelemetryEvent =
+  | DrillStartedEvent
+  | AnswerEvent
+  | SessionCompletedEvent
+  | ImmersiveEnteredEvent
+  | SnakeFoodConsumedEvent;
 
 /**
  * Validate a telemetry event against its schema
@@ -106,6 +148,10 @@ export function validateEvent(event: any): boolean {
       return validateAgainstSchema(event, answerEventSchema);
     case 'session_completed':
       return validateAgainstSchema(event, sessionCompletedEventSchema);
+    case 'immersive_entered':
+      return validateAgainstSchema(event, immersiveEnteredEventSchema);
+    case 'snake_food_consumed':
+      return validateAgainstSchema(event, snakeFoodConsumedEventSchema);
     default:
       return false;
   }
@@ -136,6 +182,36 @@ export function emitDrillStarted(sessionId: string, questionCount: number): void
     clientTs: Date.now(),
   };
 
+  if (validateEvent(event)) {
+    telemetryEmitter.emit('event', event);
+  }
+}
+
+/**
+ * Emit immersive_entered event
+ */
+export function emitImmersiveEntered(mode: string): void {
+  const event: ImmersiveEnteredEvent = {
+    type: 'immersive_entered',
+    mode,
+    clientTs: Date.now(),
+  };
+  if (validateEvent(event)) {
+    telemetryEmitter.emit('event', event);
+  }
+}
+
+/**
+ * Emit snake_food_consumed event
+ */
+export function emitSnakeFoodConsumed(label: string, score: number, tick: number): void {
+  const event: SnakeFoodConsumedEvent = {
+    type: 'snake_food_consumed',
+    label,
+    score,
+    tick,
+    clientTs: Date.now(),
+  };
   if (validateEvent(event)) {
     telemetryEmitter.emit('event', event);
   }

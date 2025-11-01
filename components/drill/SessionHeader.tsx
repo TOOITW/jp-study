@@ -29,17 +29,25 @@ export const SessionHeader: React.FC<SessionHeaderProps> = ({
 
   return (
     <header
-      data-testid="drill-header"
+      data-testid="session-header"
       className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 p-4 shadow-sm"
     >
       <div className="max-w-2xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-4">
-          <div className="flex justify-between items-center mb-2">
-            <span data-testid="progress-text" className="text-sm font-semibold text-gray-700">
-              {currentQuestion} of {totalQuestions}
+          <div className="flex items-center justify-between mb-2">
+            <span
+              data-testid="progress-text"
+              aria-label="進度"
+              className="text-sm font-semibold text-gray-700"
+            >
+              {currentQuestion}/{totalQuestions}
             </span>
-            <span className="text-xs text-gray-500">
+            <span
+              data-testid="timer-text"
+              aria-label="計時"
+              className="text-xs text-gray-500 ml-6"
+            >
               {minutes}:{seconds.toString().padStart(2, '0')}
             </span>
           </div>
