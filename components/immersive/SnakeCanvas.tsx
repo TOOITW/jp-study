@@ -67,6 +67,18 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
     setState((s) => updateWrap(s, wrap));
   }, [wrap]);
 
+  // Seed foods once options arrive (fix: refresh may render before options loaded)
+  useEffect(() => {
+    if ((options?.length || 0) > 0 && state.foods.length === 0 && state.tick === 0) {
+      setState(() =>
+        initGame(
+          { speedMs: speed, wrap, cols: state.cfg.cols, rows: state.cfg.rows },
+          options.slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
+        )
+      );
+    }
+  }, [options, speed, wrap]);
+
   // Render
   useEffect(() => {
     const canvas = canvasRef.current;
