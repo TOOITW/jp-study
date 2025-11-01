@@ -10,7 +10,10 @@ interface GameShellProps {
  * 30/70 split layout for Immersive Mode (top language, bottom game).
  */
 export default function GameShell({ children }: GameShellProps) {
-  const [top, bottom] = Array.isArray(children) ? children : [children, null];
+  // Normalize children using React.Children.toArray to avoid SSR/CSR divergence
+  const arr = React.Children.toArray(children);
+  const top = arr[0] ?? null;
+  const bottom = arr[1] ?? null;
   return (
     <div data-testid="immersive-shell" className="min-h-screen bg-gray-950 text-white flex flex-col">
       <div className="flex-1 basis-3/10 p-4 border-b border-gray-800">
