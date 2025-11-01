@@ -4,7 +4,7 @@ export function initGame(cfg: Partial<GameConfig> = {}, seedFoods: Omit<Food, 'p
   const config: GameConfig = {
     cols: cfg.cols ?? 20,
     rows: cfg.rows ?? 14,
-    speedMs: cfg.speedMs ?? 120,
+    speedMs: cfg.speedMs ?? 200,
   };
 
   const center: GridPos = { x: Math.floor(config.cols / 2), y: Math.floor(config.rows / 2) };
@@ -67,6 +67,11 @@ export function changeDirection(state: GameState, dir: Direction): GameState {
   const opposite: Record<Direction, Direction> = { up: 'down', down: 'up', left: 'right', right: 'left' };
   if (opposite[state.dir] === dir) return state;
   return { ...state, dir };
+}
+
+export function updateSpeed(state: GameState, speedMs: number): GameState {
+  if (!Number.isFinite(speedMs) || speedMs < 40) return state;
+  return { ...state, cfg: { ...state.cfg, speedMs } };
 }
 
 export function randomEmptyCell(cfg: GameConfig, snake: GridPos[], foods: Food[], salt = 0): GridPos {

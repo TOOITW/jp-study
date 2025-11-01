@@ -19,8 +19,17 @@ export default function LanguagePanel({ prompt, target, options }: LanguagePanel
         <div className="text-3xl font-bold text-emerald-400 tracking-wide mb-4" data-testid="target-word">
           {target || (options && options[0]) || ''}
         </div>
-
-        <div className="text-gray-400 text-xs">候補: {options?.join(' / ')}</div>
+        <div className="text-gray-400 text-xs">
+          候補:
+          {options?.map((opt, i) => (
+            <span key={i} className="ml-2">
+              <span className="inline-flex items-center justify-center w-5 h-5 text-[11px] font-semibold rounded bg-gray-800 text-gray-100 border border-gray-700 mr-1">
+                {i + 1}
+              </span>
+              {opt}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

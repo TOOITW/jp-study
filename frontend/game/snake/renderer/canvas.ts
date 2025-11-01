@@ -1,6 +1,6 @@
 import { GameState } from '../types';
 
-export function renderToCanvas(ctx: CanvasRenderingContext2D, state: GameState, cellSize = 32) {
+export function renderToCanvas(ctx: CanvasRenderingContext2D, state: GameState, cellSize = 40) {
   const { cols, rows } = state.cfg;
   const w = cols * cellSize;
   const h = rows * cellSize;
@@ -29,11 +29,20 @@ export function renderToCanvas(ctx: CanvasRenderingContext2D, state: GameState, 
     ctx.stroke();
   }
 
-  // Foods
-  for (const f of state.foods) {
+  // Foods with numeric labels (1..N) for readability
+  state.foods.forEach((f, idx) => {
+    const x = f.pos.x * cellSize;
+    const y = f.pos.y * cellSize;
     ctx.fillStyle = '#f59e0b'; // amber
-    ctx.fillRect(f.pos.x * cellSize + 4, f.pos.y * cellSize + 4, cellSize - 8, cellSize - 8);
-  }
+    ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+
+    // Number overlay
+    ctx.fillStyle = '#111827'; // gray-900 for contrast
+    ctx.font = `bold ${Math.floor(cellSize * 0.5)}px ui-sans-serif, system-ui, -apple-system`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(idx + 1), x + cellSize / 2, y + cellSize / 2 + 1);
+  });
 
   // Snake
   ctx.fillStyle = '#10b981';

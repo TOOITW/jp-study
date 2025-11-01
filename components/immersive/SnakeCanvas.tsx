@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from 'react';
-import { initGame, step, changeDirection } from '@/frontend/game/snake/core';
+import { initGame, step, changeDirection, updateSpeed } from '@/frontend/game/snake/core';
 import { renderToCanvas } from '@/frontend/game/snake/renderer/canvas';
 import { emitSnakeFoodConsumed } from '@/frontend/lib/telemetry/events';
 
@@ -12,7 +12,10 @@ interface SnakeCanvasProps {
 export default function SnakeCanvas({ options }: SnakeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [running, setRunning] = useState(true);
-  const [state, setState] = useState(() => initGame({}, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))));
+  const [state, setState] = useState(() =>
+    initGame({ speedMs: 200 }, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
+  ));
+  const [speed, setSpeed] = useState<number>(200);
 
   // Keyboard controls
   useEffect(() => {
@@ -53,13 +56,18 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
     return () => cancelAnimationFrame(raf);
   }, [running, state.cfg.speedMs]);
 
+  // Apply speed changes to game state
+  useEffect(() => {
+    setState((s) => updateSpeed(s, speed));
+  }, [speed]);
+
   // Render
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    renderToCanvas(ctx, state);
+    renderToCanvas(ctx, state, 40);
   }, [state]);
 
   return (
@@ -73,6 +81,16 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
         >
           {running ? 'Pause' : 'Resume'}
         </button>
+        <select
+          value={speed}
+          onChange={(e) => setSpeed(Number(e.target.value))}
+          className="px-2 py-1 text-sm rounded bg-gray-800/70 hover:bg-gray-700 border border-gray-700"
+          aria-label="Speed"
+        >
+          <option value={260}>Slow</option>
+          <option value={200}>Normal</option>
+          <option value={140}>Fast</option>
+        </select>
       </div>
     </div>
   );
