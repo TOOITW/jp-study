@@ -7,9 +7,11 @@ import { emitSnakeFoodConsumed } from '@/frontend/lib/telemetry/events';
 
 interface SnakeCanvasProps {
   options: string[];
+  correctLabel?: string;
+  onAnswerConsumed?: (isCorrect: boolean) => void;
 }
 
-export default function SnakeCanvas({ options }: SnakeCanvasProps) {
+export default function SnakeCanvas({ options, correctLabel, onAnswerConsumed }: SnakeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [running, setRunning] = useState(true);
   const [state, setState] = useState(() =>
@@ -46,7 +48,17 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
           if (next.score > lastScore) {
             // Find which food label likely eaten (best-effort)
             const eaten = s.foods.find((f) => !next.foods.some((nf) => nf.id === f.id && nf.pos.x === f.pos.x && nf.pos.y === f.pos.y));
-            if (eaten) emitSnakeFoodConsumed(eaten.label, next.score, next.tick);
+            if (eaten) {
+              const isCorrect = correctLabel ? eaten.label === correctLabel : true;
+              // Telemetry
+              emitSnakeFoodConsumed(eaten.label, next.score, next.tick);
+              // Adjust growth: if incorrect, neutralize the growth by removing tail once
+              if (!isCorrect && next.snake.length > 2) {
+                next.snake = next.snake.slice(0, next.snake.length - 1);
+              }
+              // Notify parent to advance question
+              onAnswerConsumed?.(isCorrect);
+            }
             lastScore = next.score;
           }
           return next;
@@ -78,6 +90,28 @@ export default function SnakeCanvas({ options }: SnakeCanvasProps) {
       );
     }
   }, [options, speed, wrap]);
+
+  // Replace foods when options change (mid-game reseed without resetting snake)
+  useEffect(() => {
+    if (!options || options.length === 0) return;
+    setState((s) => {
+      // local placer similar to core.randomEmptyCell
+      const place = (taken: { x: number; y: number }[], cols: number, rows: number, salt: number) => {
+        const n = cols * rows;
+        for (let i = 0; i < n; i++) {
+          const r = (i * 9301 + 49297 + salt * 233) % 233280;
+          const x = (r + i * 13) % cols;
+          const y = (r + i * 29) % rows;
+          const occ = taken.some((t) => t.x === x && t.y === y);
+          if (!occ) return { x, y } as const;
+        }
+        return { x: 0, y: 0 } as const;
+      };
+      const taken = [...s.snake, ...s.foods.map((f) => f.pos)];
+      const newFoods = options.slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label, pos: place(taken, s.cfg.cols, s.cfg.rows, i) }));
+      return { ...s, foods: newFoods };
+    });
+  }, [options]);
 
   // Render
   useEffect(() => {
