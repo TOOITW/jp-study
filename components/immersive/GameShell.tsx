@@ -20,7 +20,7 @@ export default function GameShell({ children }: GameShellProps) {
         <div className="max-w-5xl mx-auto h-full">{top}</div>
       </div>
       <div className="flex-[0_0_80%] grow p-0">
-        <div className="max-w-6xl mx-auto h-full">{bottom}</div>
+        <div className="w-full h-full flex items-center justify-center">{bottom}</div>
       </div>
     </div>
   );

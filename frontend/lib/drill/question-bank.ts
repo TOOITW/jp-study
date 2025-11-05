@@ -5,6 +5,7 @@
  */
 
 import n5Batch1 from '@/frontend/data/questions/n5-batch-day-1.json';
+import n5Batch2 from '@/frontend/data/questions/n5-batch-day-2.json';
 
 export type QuestionType = 'single' | 'match' | 'fill';
 export type QuestionCategory = 'vocabulary' | 'grammar' | 'kanji' | 'listening' | 'reading' | 'particle';
@@ -67,6 +68,12 @@ function getAllQuestions(): AnyQuestion[] {
   if (n5Batch1?.questions) {
     allQuestions.push(
       ...(n5Batch1.questions as AnyQuestion[])
+    );
+  }
+
+  if (n5Batch2?.questions) {
+    allQuestions.push(
+      ...(n5Batch2.questions as AnyQuestion[])
     );
   }
 

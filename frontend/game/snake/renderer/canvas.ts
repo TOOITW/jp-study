@@ -1,6 +1,15 @@
 import { GameState } from '../types';
 
-export function renderToCanvas(ctx: CanvasRenderingContext2D, state: GameState, cellSize = 40) {
+type RenderOptions = {
+  suppressGameOver?: boolean;
+};
+
+export function renderToCanvas(
+  ctx: CanvasRenderingContext2D,
+  state: GameState,
+  cellSize = 40,
+  options?: RenderOptions
+) {
   const { cols, rows } = state.cfg;
   const w = cols * cellSize;
   const h = rows * cellSize;
@@ -51,12 +60,14 @@ export function renderToCanvas(ctx: CanvasRenderingContext2D, state: GameState, 
     ctx.fillRect(s.x * cellSize + pad, s.y * cellSize + pad, cellSize - pad * 2, cellSize - pad * 2);
   });
 
-  // HUD
-  ctx.fillStyle = 'rgba(255,255,255,0.8)';
-  ctx.font = '14px ui-sans-serif, system-ui, -apple-system';
-  ctx.fillText(`Score: ${state.score}`, 10, 20);
+  // HUD - move Score away from edge to prevent clipping
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = 'bold 16px ui-sans-serif, system-ui, -apple-system';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`Score: ${state.score}`, 16, 16);
 
-  if (state.gameOver) {
+  if (state.gameOver && !options?.suppressGameOver) {
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(0, 0, w, h);
     ctx.fillStyle = '#fff';

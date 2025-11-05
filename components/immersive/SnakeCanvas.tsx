@@ -8,36 +8,54 @@ import { emitSnakeFoodConsumed } from '@/frontend/lib/telemetry/events';
 interface SnakeCanvasProps {
   options: string[];
   correctLabel?: string;
-  onAnswerConsumed?: (isCorrect: boolean) => void;
+  onAnswerConsumed?: (isCorrect: boolean, score: number) => void;
+  suppressGameOver?: boolean;
 }
 
-export default function SnakeCanvas({ options, correctLabel, onAnswerConsumed }: SnakeCanvasProps) {
+export default function SnakeCanvas({ options, correctLabel, onAnswerConsumed, suppressGameOver }: SnakeCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const correctRef = useRef<string | undefined>(correctLabel);
+  const onConsumedRef = useRef<((isCorrect: boolean, score: number) => void) | undefined>(onAnswerConsumed);
+  const pendingConsumeRef = useRef<{ label: string; isCorrect: boolean; score: number } | null>(null);
   const [running, setRunning] = useState(true);
   const [state, setState] = useState(() =>
-    initGame({ speedMs: 200, wrap: true }, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
+    initGame({ speedMs: 200, wrap: true, cols: 28, rows: 18 }, (options || []).slice(0, 4).map((label, i) => ({ id: `opt-${i}`, label }))
   ));
   const [speed, setSpeed] = useState<number>(200);
   const [wrap, setWrap] = useState<boolean>(true);
 
-  // Keyboard controls
+  // Keep latest props in refs to avoid stale closures inside the game loop
+  useEffect(() => {
+    correctRef.current = correctLabel;
+  }, [correctLabel]);
+  useEffect(() => {
+    onConsumedRef.current = onAnswerConsumed;
+  }, [onAnswerConsumed]);
+
+  // Keyboard controls (Arrow keys + WASD)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowUp') setState((s) => changeDirection(s, 'up'));
-      if (e.key === 'ArrowDown') setState((s) => changeDirection(s, 'down'));
-      if (e.key === 'ArrowLeft') setState((s) => changeDirection(s, 'left'));
-      if (e.key === 'ArrowRight') setState((s) => changeDirection(s, 'right'));
-      if (e.key === ' ') setRunning((r) => !r);
+      const k = e.key.toLowerCase();
+      const c = e.code;
+      let handled = false;
+      if (k === 'arrowup' || k === 'w' || c === 'KeyW') { setState((s) => changeDirection(s, 'up')); handled = true; }
+      else if (k === 'arrowdown' || k === 's' || c === 'KeyS') { setState((s) => changeDirection(s, 'down')); handled = true; }
+      else if (k === 'arrowleft' || k === 'a' || c === 'KeyA') { setState((s) => changeDirection(s, 'left')); handled = true; }
+      else if (k === 'arrowright' || k === 'd' || c === 'KeyD') { setState((s) => changeDirection(s, 'right')); handled = true; }
+      else if (e.key === ' ') { setRunning((r) => !r); handled = true; }
+      if (handled) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('keydown', onKey, { capture: true });
+    return () => window.removeEventListener('keydown', onKey, { capture: true } as any);
   }, []);
 
   // Game loop
   useEffect(() => {
     let raf = 0;
     let last = performance.now();
-    let lastScore = state.score;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       if (!running) return;
@@ -45,24 +63,42 @@ export default function SnakeCanvas({ options, correctLabel, onAnswerConsumed }:
         last = now;
         setState((s) => {
           const next = step(s);
-          if (next.score > lastScore) {
-            // Find which food label likely eaten (best-effort)
-            const eaten = s.foods.find((f) => !next.foods.some((nf) => nf.id === f.id && nf.pos.x === f.pos.x && nf.pos.y === f.pos.y));
+          // 穩健的吃到判定：蛇長度是否增加
+          if (next.snake.length > s.snake.length) {
+            // 以新頭部位置對照「舊」foods 的位置，找出被吃掉的食物
+            const head = next.snake[0];
+            const eaten = s.foods.find((f) => f.pos.x === head.x && f.pos.y === head.y);
             if (eaten) {
-              const isCorrect = correctLabel ? eaten.label === correctLabel : true;
+              const currentCorrect = correctRef.current;
+              const isCorrect = currentCorrect ? eaten.label === currentCorrect : true;
               // Telemetry
               emitSnakeFoodConsumed(eaten.label, next.score, next.tick);
-              // Adjust growth: if incorrect, neutralize the growth by removing tail once
-              if (!isCorrect && next.snake.length > 2) {
-                next.snake = next.snake.slice(0, next.snake.length - 1);
+              // 錯誤：
+              // - Core 已加長 +1、加分 +1
+              // - 我們要「淨縮短 1、分數 -1」
+              //   → 額外裁掉 2 節（若可），分數設為 max(0, s.score - 1)
+              if (!isCorrect) {
+                const canRemove = Math.max(0, Math.min(2, next.snake.length - 1));
+                if (canRemove > 0) {
+                  next.snake = next.snake.slice(0, next.snake.length - canRemove);
+                }
+                next.score = Math.max(0, s.score - 1);
               }
-              // Notify parent to advance question
-              onAnswerConsumed?.(isCorrect);
+              // 延後通知父層，避免在子元件的 state 計算/渲染階段觸發父層 setState
+              pendingConsumeRef.current = { label: eaten.label, isCorrect, score: next.score };
             }
-            lastScore = next.score;
           }
           return next;
         });
+
+        // 在此次 state 更新排入後、使用微任務於 commit 後通知父層
+        if (pendingConsumeRef.current) {
+          const ev = pendingConsumeRef.current;
+          pendingConsumeRef.current = null;
+          queueMicrotask(() => {
+            onConsumedRef.current?.(ev.isCorrect, ev.score);
+          });
+        }
       }
     };
     raf = requestAnimationFrame(tick);
@@ -119,12 +155,12 @@ export default function SnakeCanvas({ options, correctLabel, onAnswerConsumed }:
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    renderToCanvas(ctx, state, 40);
-  }, [state]);
+    renderToCanvas(ctx, state, 40, { suppressGameOver });
+  }, [state, suppressGameOver]);
 
   return (
-    <div className="relative h-full">
-      <canvas ref={canvasRef} data-testid="snake-canvas" className="block w-full h-full" />
+    <div className="relative inline-block">
+      <canvas ref={canvasRef} data-testid="snake-canvas" className="block" />
 
       <div className="absolute top-3 right-4 flex gap-2">
         <button

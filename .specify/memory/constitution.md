@@ -48,6 +48,51 @@ Web 採 Next.js + Tailwind + shadcn/ui；禁止自創 UI 庫與隨意色票。�
   - 測試清單（含測試類型：unit/integration/contract/e2e）
 - 違規案例：創建 `specs/001-xxx/ac-7.md` 而非將其內容整合進 `plan.md` 和 `tasks.md`
 
+### Interactive Loop & Realtime UI 規範（新增）
+
+為避免互動式遊戲循環（如 Canvas / requestAnimationFrame / setInterval）與 React/Next.js 的狀態流產生偏差，制定以下強制規範：
+
+- 長壽命迴圈中的動態資料同步（強制）
+  - 在 `requestAnimationFrame` / `setInterval` / WebSocket callbacks 內，若需讀取「會隨 props/state 改變」的值，必須使用 `useRef` 同步最新值，或確保 effect 依賴完整、能安全重綁迴圈。
+  - 禁止在長壽命迴圈中直接閉包舊的 props/state 造成「僵固判定」（stale closure）。
+  - 反例：在遊戲迴圈內直接使用初次 render 的 `onAnswerConsumed` 或 `correctLabel`。
+
+- Domain × Core 合約（強制）
+  - 將「遊戲核心（core）」與「領域規則（domain）」拆分：核心 `step()` 僅提供基本移動/吃到食物 → 長度+1/分數+1；領域規則（正確/錯誤處置）在外層進行二次調整。
+  - 必須定義不變式（Invariants）：
+    - 分數不得 < 0；
+    - 蛇最小長度 ≥ 1；
+    - 「錯誤」的淨效果需明文化（例如：淨縮短 1、分數-1）。
+  - 任何對核心結果的二次調整需在 Spec 的 Contracts 區塊與 AC 中對表。
+
+- 題目前進與事件（強制）
+  - 吃到任一選項（正/誤）必須觸發單一入口（例如 `onAnswerConsumed(isCorrect)`）以推進題目索引與重置/重佈局相關資源。
+  - Telemetry 需同步上報：被吃的 label、是否正確、分數、tick 時間。
+
+- Options 變更時的佈局（強制）
+  - 當 `options` 改變時：
+    - 必須重新佈局（reseed）畫面上的目標（如食物）以對齊數字標籤與側欄 legend；
+    - 不可無故重置蛇狀態與速度等玩家設定（除非設計上明確定義）。
+
+- Next.js 15 與 SSR/CSR 一致性（強制）
+  - 動態 API 限制：頁面層若依賴 `searchParams` 或 feature flag，必須以 Server Component 先行「決策」，Client Component 僅負責行為與渲染，避免 hydration mismatch。
+
+- 測試要求（強制）
+  - Unit（核心）：
+    - 驗證 `step()` 的移動、吃到食物、包牆/撞牆、不可 180 度轉向、不變式維持。
+  - Integration（領域規則層）：
+    - 吃到正解：淨加長 1、分數+1；
+    - 吃到錯誤：淨縮短 1、分數-1（不低於 0）。
+  - E2E（互動）：
+    - 連續至少三題能確定前進（正/誤皆會前進）；
+    - options 變更後，Canvas 數字標籤與側欄 legend 一致；
+    - 暫停/恢復、速度與包牆切換可用，且不破壞迴圈狀態。
+
+- 常見反模式（禁止）
+  - 在遊戲迴圈中直接閉包初始 props/state；
+  - 以「重建整個遊戲狀態」處理 `options` 微調，導致玩家設定與蛇狀態被意外重置；
+  - 在頁面層混用動態資料導致 Hydration mismatch。
+
 ### Git Ignore 規範（強制）
 - **必須**維護根目錄 `.gitignore` 檔案；禁止提交：
   - `node_modules/` — 依賴目錄，由 `npm ci` 恢復
