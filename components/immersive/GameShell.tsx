@@ -1,26 +1,46 @@
 "use client";
+import React from "react";
 
-import React from 'react';
+interface GameShellProps { children: React.ReactNode[] | React.ReactNode; }
 
-interface GameShellProps {
-  children: React.ReactNode[] | React.ReactNode;
-}
-
-/**
- * 30/70 split layout for Immersive Mode (top language, bottom game).
- */
 export default function GameShell({ children }: GameShellProps) {
-  // Normalize children using React.Children.toArray to avoid SSR/CSR divergence
-  const arr = React.Children.toArray(children);
-  const top = arr[0] ?? null;
-  const bottom = arr[1] ?? null;
+  const [top, bottom] = React.Children.toArray(children);
+
   return (
-    <div data-testid="immersive-shell" className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <div className="flex-1 basis-2/10 p-4 border-b border-gray-800">
-        <div className="max-w-5xl mx-auto h-full">{top}</div>
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: '#0a0f1a',
+      color: 'white',
+      overflow: 'hidden'
+    }}>
+      {/* Header - 固定在頂部 */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        padding: '24px',
+        borderBottom: '1px solid #1f2937',
+        zIndex: 10
+      }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', textAlign: 'center' }}>
+          {top}
+        </div>
       </div>
-      <div className="flex-[0_0_80%] grow p-0">
-        <div className="w-full h-full flex items-center justify-center">{bottom}</div>
+      
+      {/* Game Canvas - 絕對置中 */}
+      <div style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 1
+      }}>
+        {bottom}
       </div>
     </div>
   );

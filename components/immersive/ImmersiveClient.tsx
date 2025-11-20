@@ -136,28 +136,35 @@ export default function ImmersiveClient() {
   };
 
   return (
-    <>
-      <GameShell>
-        <LanguagePanel prompt={prompt} target={correctLabel || options[0] || ''} options={options} />
-        <SnakeCanvas
-          options={options}
-          correctLabel={correctLabel}
-          onAnswerConsumed={handleConsumed}
-          suppressGameOver={completed}
-        />
-      </GameShell>
-      {completed && (
-        <CompletionOverlay
-          stats={{
-            totalQuestions: questions.length,
-            correct: correctCount,
-            score: finalScoreRef.current,
-            durationMs: Date.now() - startTimeRef.current,
-            longestStreak,
-          }}
-          onPlayAgain={handlePlayAgain}
-        />
-      )}
-    </>
-  );
+  <>
+    <GameShell>
+      <LanguagePanel
+        prompt={prompt}
+        target={correctLabel || options[0] || ""}
+        options={options}
+      />
+
+      {/* GameShell 已經處理置中，直接渲染 SnakeCanvas */}
+      <SnakeCanvas
+        options={options}
+        correctLabel={correctLabel}
+        onAnswerConsumed={handleConsumed}
+        suppressGameOver={completed}
+      />
+    </GameShell>
+
+    {completed && (
+      <CompletionOverlay
+        stats={{
+          totalQuestions: questions.length,
+          correct: correctCount,
+          score: finalScoreRef.current,
+          durationMs: Date.now() - startTimeRef.current,
+          longestStreak,
+        }}
+        onPlayAgain={handlePlayAgain}
+      />
+    )}
+  </>
+);
 }
